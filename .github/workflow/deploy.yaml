@@ -1,0 +1,70 @@
+name: Deploy CloudFormation Stack
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials for primary region
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+
+    - name: Deploy CloudFormation stack in primary region
+      run: |
+        aws cloudformation deploy \
+          --template-file template.yaml \
+          --stack-name my-two-tier-architecture \
+          --parameter-overrides \
+            VPCCIDR=10.0.0.0/16 \
+            PrivateSubnetCIDR=10.0.2.0/24 \
+            PrivateSubnetCIDR1=10.0.3.0/24 \
+            PublicSubnetCIDR=10.0.1.0/24 \
+            PublicSubnetCIDR1=10.0.1.0/24 \
+            SSHLocation=0.0.0.0/0 \
+            MyKeyName=my-key-pair \
+            MyAvailabilityZone=us-east-2a \
+            EnvironmentName=Dev \
+          --capabilities CAPABILITY_NAMED_IAM
+
+    - name: Configure AWS credentials for secondary region
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Deploy CloudFormation stack in secondary region
+      run: |
+        aws cloudformation deploy \
+          --template-file template.yaml \
+          --stack-name my-two-tier-architecture \
+          --parameter-overrides \
+            VPCCIDR=10.0.0.0/16 \
+            PrivateSubnetCIDR=10.0.2.0/24 \
+            PrivateSubnetCIDR1=10.0.3.0/24 \
+            PublicSubnetCIDR=10.0.1.0/24 \
+            PublicSubnetCIDR1=10.0.1.0/24 \
+            SSHLocation=0.0.0.0/0 \
+            MyKeyName=my-key-pair \
+            MyAvailabilityZone=us-east-1a \
+            EnvironmentName=Dev \
+          --capabilities CAPABILITY_NAMED_IAM
+
+    - name: Verify Stack Deployment in primary region
+      run: |
+        aws cloudformation describe-stacks --stack-name my-two-tier-architecture
+
+    - name: Verify Stack Deployment in secondary region
+      run: |
+        aws cloudformation describe-stacks --stack-name my-two-tier-architecture --region us-east-1
