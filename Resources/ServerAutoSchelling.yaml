@@ -1,275 +1,37 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: Two-tier architecture with Web Server and Database
+AWSTemplateFormatVersion: 2010-09-09
 
-Parameters:
-  VPCCIDR:
-    Default: 10.0.0.0/16
-    Type: String
-
-  PrivateSubnetCIDR:
-    Default: 10.0.2.0/24
-    Type: String
-
-  PrivateSubnetCIDR1:
-    Default: 10.0.3.0/24
-    Type: String
-
-  PublicSubnetCIDR:
-    Default: 10.0.1.0/24
-    Type: String
-
-  PublicSubnetCIDR1:
-    Default: 10.0.1.0/24
-    Type: String
-
-  SSHLocation:
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: must be a valid IP CIDR Range of the form x.x.x.x/x.
-    Default: 0.0.0.0/0
-    Description: The IP address range that can be used to access the web server using SSH.
-    MaxLength: '18'
-    MinLength: '9'
-    Type: String
-
-  MyKeyName: 
-    Description: Select the Key Name from the list
-    Type: AWS::EC2::KeyPair::KeyName
-
-  MyAvailabilityZone: 
-    Description: Select the Availability Zone from the list
-    Type: String
-    Default: us-east-2a
-    AllowedValues:
-         - us-east-2a
-         - us-east-2b
-  EnvironmentName:
-    Description: Select the Environment
-    Type: String
-    Default: Dev
-    AllowedValues:
-         - Dev
-         - Prod
-
-Mappings:
-  MyRegionMap:
-    us-east-2:
-      AMIID1: ami-0ddda618e961f2270
-    us-east-1:
-      AMIID1: ami-07caf09b362be10b8
-  MyEnvironmentMap:
-    Dev: 
-      InstanceType: t2.micro
-    Prod:
-      InstanceType: t2.micro
+Description: VPC Private and Public using CloudFormation
 
 Resources:
-  VPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: !Ref VPCCIDR
 
-  PublicSubnet:
-    Type: AWS::EC2::Subnet
+  MyTestVPC:
+    Type: "AWS::EC2::VPC"
     Properties:
-      VpcId: !Ref VPC
-      CidrBlock: !Ref PublicSubnetCIDR
+      CidrBlock: 10.0.0.0/24
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: MyVPC
+
+  MyPublicSubnet:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref MyTestVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: us-east-1
       MapPublicIpOnLaunch: true
-      AvailabilityZone: !Ref MyAvailabilityZone
       Tags:
         - Key: Name
-          Value: Public Subnet
+          Value: PublicSubnet
 
-  PublicSubnet1:
-    Type: AWS::EC2::Subnet
+  MyPrivateSubnet:
+    Type: "AWS::EC2::Subnet"
     Properties:
-      VpcId: !Ref VPC
-      CidrBlock: !Ref PublicSubnetCIDR1
-      MapPublicIpOnLaunch: true
-      AvailabilityZone: !Ref MyAvailabilityZone
+      VpcId: !Ref MyTestVPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: us-east-1
+      MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: Public Subnet
-
-  PrivateSubnet:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: !Ref PrivateSubnetCIDR
-      AvailabilityZone: !Ref MyAvailabilityZone
-      Tags:
-        - Key: Name
-          Value: Private Subnet
-
-  PrivateSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: !Ref PrivateSubnetCIDR1
-      AvailabilityZone: !Ref MyAvailabilityZone
-      Tags:
-        - Key: Name
-          Value: Private Subnet
-
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Name
-          Value: Test IGW
-
-  AttachGateway:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      InternetGatewayId: !Ref InternetGateway
-      VpcId: !Ref VPC
-
-  PublicRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: Public Route Table
-
-  PublicRoute:
-    Type: AWS::EC2::Route
-    DependsOn: AttachGateway
-    Properties:
-      RouteTableId: !Ref PublicRouteTable
-      DestinationCidrBlock: "0.0.0.0/0"
-      GatewayId: !Ref InternetGateway
-
-  PublicSubnetRouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PublicSubnet
-      RouteTableId: !Ref PublicRouteTable
-
-  PublicSubnet1RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PublicSubnet1
-      RouteTableId: !Ref PublicRouteTable
-
-  ALBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Enable HTTP/HTTPS access on port 80/443
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: '80'
-          ToPort: '80'
-          CidrIp: "0.0.0.0/0"
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
-      Tags:
-        - Key: Name
-          Value: ALB Security Group
-      VpcId: !Ref VPC
-
-  SSHSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: SSH Security Group
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: !Ref SSHLocation
-      Tags:
-        - Key: Name
-          Value: SSH Security Group
-      VpcId: !Ref VPC
-
-  WebServerSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Enable HTTP/HTTPS access via port 80/443 locked down to the load balancer SG + SSH access via port 22 locked down SSH SG
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: '80'
-          ToPort: '80'
-          SourceSecurityGroupId: !Ref ALBSecurityGroup
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          SourceSecurityGroupId: !Ref ALBSecurityGroup
-        - IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
-          SourceSecurityGroupId: !Ref SSHSecurityGroup
-      Tags:
-        - Key: Name
-          Value: WebServer Security Group
-      VpcId: !Ref VPC
-
-  WebServerLaunchConfiguration:
-    Type: AWS::AutoScaling::LaunchConfiguration
-    Properties:
-      ImageId: !FindInMap [MyRegionMap, !Ref 'AWS::Region', AMIID1]
-      InstanceType: !FindInMap [MyEnvironmentMap, !Ref EnvironmentName, InstanceType]
-      KeyName: !Ref MyKeyName
-      SecurityGroups:
-        - !Ref WebServerSecurityGroup
-      UserData:
-        Fn::Base64: |
-          #!/bin/bash
-          yum update -y
-          amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
-          yum install -y httpd mariadb-server
-          systemctl start httpd
-          systemctl enable httpd
-          usermod -a -G apache ec2-user  
-          chown -R ec2-user:apache /var/www
-          chmod 2775 /var/www
-          find /var/www -type d -exec sudo chmod 2775 {} \;
-          find /var/www -type f -exec sudo chmod 0664 {} \;
-          echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
-
-  WebServerAutoScalingGroup:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    Properties:
-      VPCZoneIdentifier:
-        - !Ref PublicSubnet
-        - !Ref PublicSubnet1
-      LaunchConfigurationName: !Ref WebServerLaunchConfiguration
-      MinSize: 1
-      MaxSize: 2
-      DesiredCapacity: 1
-
-  DatabaseSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Enable access to the database
-      VpcId: !Ref VPC
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 3306
-          ToPort: 3306
-          SourceSecurityGroupId: !Ref WebServerSecurityGroup
-      Tags:
-        - Key: Name
-          Value: Database Security Group
-
-  DatabaseSubnetGroup:
-    Type: AWS::RDS::DBSubnetGroup
-    Properties:
-      DBSubnetGroupDescription: Subnet group for the database
-      SubnetIds:
-        - !Ref PrivateSubnet
-        - !Ref PrivateSubnet1
-
-  DatabaseInstance:
-    Type: AWS::RDS::DBInstance
-    Properties:
-      AllocatedStorage: 20
-      DBInstanceClass: db.t2.micro
-      Engine: mysql
-      EngineVersion: "5.7"
-      MasterUsername: admin
-      MasterUserPassword: admin123
-      DBSubnetGroupName: !Ref DatabaseSubnetGroup
-      VPCSecurityGroups:
-        - !Ref DatabaseSecurityGroup
+          Value: PrivateSubnet
