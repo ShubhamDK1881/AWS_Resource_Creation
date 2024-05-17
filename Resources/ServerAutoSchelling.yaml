@@ -18,7 +18,7 @@ Resources:
     Type: "AWS::EC2::Subnet"
     Properties:
       VpcId: !Ref MyTestVPC
-      CidrBlock: 10.0.1.0/24
+      CidrBlock: 10.0.2.0/24
       AvailabilityZone: us-east-1
       MapPublicIpOnLaunch: true
       Tags:
