@@ -12,4 +12,4 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: MyVPC
+          Value: MyVPCgit
