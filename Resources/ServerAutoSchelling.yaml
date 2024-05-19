@@ -5,33 +5,11 @@ Description: VPC Private and Public using CloudFormation
 Resources:
 
   MyTestVPC:
-    Type: "AWS::EC2::VPC"
+    Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.0.0.0/24
+      CidrBlock: 10.0.0.0/16
       EnableDnsSupport: true
       EnableDnsHostnames: true
       Tags:
         - Key: Name
           Value: MyVPC
-
-  MyPublicSubnet:
-    Type: "AWS::EC2::Subnet"
-    Properties:
-      VpcId: !Ref MyTestVPC
-      CidrBlock: 10.0.2.0/24
-      AvailabilityZone: us-east-1
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: Name
-          Value: PublicSubnet
-
-  MyPrivateSubnet:
-    Type: "AWS::EC2::Subnet"
-    Properties:
-      VpcId: !Ref MyTestVPC
-      CidrBlock: 10.0.2.0/24
-      AvailabilityZone: us-east-1
-      MapPublicIpOnLaunch: false
-      Tags:
-        - Key: Name
-          Value: PrivateSubnet
