@@ -51,11 +51,11 @@ jobs:
           path: ./dist
       - name: Output contents
         run: ls
-        name: deploy site
+      - name: deploy site
         uses: ./.github/actions/deploy-s3-javascript
-            with: 
-            bucket: (put bucket name)
-            dist-folder: ./dist
+        with: 
+          bucket: (put bucket name)
+          dist-folder: ./dist
   deploy:
     needs: build
     runs-on: ubuntu-latest
