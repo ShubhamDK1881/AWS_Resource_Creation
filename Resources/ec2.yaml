@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  EC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: 't2.micro'
+      ImageId: 'ami-00beae93a2d981137'  # Make sure this AMI ID is available in your AWS region
+      Tags:
+        - Key: Name
+          Value: !Ref EC2InstanceName
+
+Outputs:
+  InstanceId:
+    Description: 'The ID of the EC2 instance'
+    Value: !Ref EC2Instance
+
+Parameters:
+  EC2InstanceName:
+    Type: String
+    Default: my-demo-ec2-instance
