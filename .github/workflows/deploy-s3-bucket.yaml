@@ -11,6 +11,7 @@ jobs:
 
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
+      VPC_NAME: my-demo-vpc
       S3_BUCKET_NAME: my-demo-s3-bucket-test-project-18
       EC2_INSTANCE_NAME: my-demo-ec2-instance
 
@@ -24,6 +25,26 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Check if VPC stack is in ROLLBACK_COMPLETE state
+      id: check_vpc_stack
+      run: |
+        STACK_STATUS=$(aws cloudformation describe-stacks --stack-name create-vpc-stack --query "Stacks[0].StackStatus" --output text || echo "STACK_NOT_FOUND")
+        echo "::set-output name=stack_status::$STACK_STATUS"
+
+    - name: Delete VPC stack if in ROLLBACK_COMPLETE state
+      if: steps.check_vpc_stack.outputs.stack_status == 'ROLLBACK_COMPLETE'
+      run: |
+        aws cloudformation delete-stack --stack-name create-vpc-stack
+        aws cloudformation wait stack-delete-complete --stack-name create-vpc-stack
+
+    - name: Deploy VPC Stack
+      run: |
+        aws cloudformation deploy \
+          --template-file Resources/vpc.yaml \
+          --stack-name create-vpc-stack \
+          --parameter-overrides VPCName=${{ env.VPC_NAME }} \
+          --capabilities CAPABILITY_NAMED_IAM
 
     - name: Check if S3 stack is in ROLLBACK_COMPLETE state
       id: check_s3_stack
