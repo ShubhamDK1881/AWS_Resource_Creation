@@ -15,7 +15,7 @@ jobs:
       S3_BUCKET_NAME: my-demo-s3-bucket-test-project-18
       EC2_INSTANCE_NAME: my-demo-ec2-instance
       LAMBDA_FUNCTION_NAME: my-demo-lambda-function
-      LAMBDA_CODE_BUCKET: my-demo-s3-bucket-test-project-18
+      LAMBDA_CODE_BUCKET: my-demo-s3-bucket-test-project-11
       LAMBDA_CODE_KEY: lambda-code.zip
 
     steps:
