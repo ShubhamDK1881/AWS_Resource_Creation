@@ -54,22 +54,19 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: vpc-id
-        path: vpc-id.txt
-      run: echo ${{ env.VPC_ID }} > vpc-id.txt
+        path: ${{ env.VPC_ID }}
 
     - name: Save EC2 Instance ID as artifact
       uses: actions/upload-artifact@v3
       with:
         name: ec2-instance-id
-        path: ec2-instance-id.txt
-      run: echo ${{ env.INSTANCE_ID }} > ec2-instance-id.txt
+        path: ${{ env.INSTANCE_ID }}
 
     - name: Save S3 Bucket Name as artifact
       uses: actions/upload-artifact@v3
       with:
         name: s3-bucket-name
-        path: s3-bucket-name.txt
-      run: echo ${{ env.BUCKET_NAME }} > s3-bucket-name.txt
+        path: ${{ env.BUCKET_NAME }}
 
     - name: Cache Node.js dependencies
       uses: actions/cache@v3
