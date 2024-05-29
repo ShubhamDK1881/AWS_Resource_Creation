@@ -14,6 +14,7 @@ jobs:
       VPC_NAME: my-demo-vpc
       S3_BUCKET_NAME: my-demo-s3-bucket
       EC2_INSTANCE_NAME: my-demo-ec2
+      S3_BUCKET_NAME_CREATE: my-demo-cloudformation-bucket # Add your S3 bucket name here
 
     steps:
     - name: Checkout repository
@@ -26,17 +27,33 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Deploy CloudFormation Stack
+    - name: Deploy S3 Bucket Stack
+      run: |
+        aws cloudformation deploy \
+          --template-file Resources/create-s3-bucket.yaml \
+          --stack-name create-s3-bucket-stack \
+          --parameter-overrides \
+            BucketName=${{ env.S3_BUCKET_NAME_CREATE }} \
+          --capabilities CAPABILITY_NAMED_IAM
+
+    - name: Upload nested stack templates to S3
+      run: |
+        aws s3 cp ./Resources/vpc.yaml s3://${{ env.S3_BUCKET_NAME_CREATE }}/vpc.yaml
+        aws s3 cp ./Resources/s3.yaml s3://${{ env.S3_BUCKET_NAME_CREATE }}/s3.yaml
+        aws s3 cp ./Resources/ec2.yaml s3://${{ env.S3_BUCKET_NAME_CREATE }}/ec2.yaml
+
+    - name: Deploy Main CloudFormation Stack
       id: deploy_stack
       run: |
-          aws cloudformation deploy \
-            --template-file ./Resources/main.yaml \
-            --stack-name my-demo-stack \
-            --parameter-overrides \
-              VPCName=${{ env.VPC_NAME }} \
-              S3BucketName=${{ env.S3_BUCKET_NAME }} \
-              EC2InstanceName=${{ env.EC2_INSTANCE_NAME }} \
-            --capabilities CAPABILITY_NAMED_IAM
+        aws cloudformation deploy \
+          --template-file ./Resources/main.yaml \
+          --stack-name my-demo-stack \
+          --parameter-overrides \
+            VPCName=${{ env.VPC_NAME }} \
+            S3BucketName=${{ env.S3_BUCKET_NAME }} \
+            EC2InstanceName=${{ env.EC2_INSTANCE_NAME }} \
+          --capabilities CAPABILITY_NAMED_IAM
+
     - name: Get CloudFormation Outputs
       id: get_outputs
       run: |
