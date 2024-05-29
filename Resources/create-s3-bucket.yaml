@@ -5,17 +5,21 @@ Resources:
     Properties:
       BucketName: !Ref BucketName
       AccessControl: Private
-      BucketPolicy:
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-            - Sid: AllowFullAccess
-              Effect: Allow
-              Principal: "*"
-              Action: "s3:*"
-              Resource:
-                - !Sub 'arn:aws:s3:::${BucketName}'
-                - !Sub 'arn:aws:s3:::${BucketName}/*'
+
+  S3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowFullAccess
+            Effect: Allow
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !Sub 'arn:aws:s3:::${BucketName}'
+              - !Sub 'arn:aws:s3:::${BucketName}/*'
 
 Parameters:
   BucketName:
