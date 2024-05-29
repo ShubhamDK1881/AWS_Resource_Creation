@@ -39,7 +39,7 @@ jobs:
     - name: Deploy S3 Bucket Stack
       run: |
         aws cloudformation deploy \
-          --template-file Resources/create-s3-bucket.yaml \
+          --template-file Resouces/create-s3-bucket.yaml \
           --stack-name create-s3-bucket-stack \
           --parameter-overrides \
             BucketName=${{ env.S3_BUCKET_NAME_CREATE }} \
