@@ -109,6 +109,19 @@ jobs:
         aws cloudformation delete-stack --stack-name create-lambda-stack
         aws cloudformation wait stack-delete-complete --stack-name create-lambda-stack
 
+    - name: Create Lambda zip
+      run: |
+        mkdir lambda-function
+        echo "exports.handler = async (event) => { console.log('Event:', event); return { statusCode: 200, body: JSON.stringify('Hello from Lambda!') }; };" > lambda-function/index.js
+        cd lambda-function
+        zip -r lambda-code.zip .
+        cd ..
+        mv lambda-function/lambda-code.zip .
+
+    - name: Upload Lambda Code to S3
+      run: |
+        aws s3 cp lambda-code.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/lambda-code.zip
+
     - name: Deploy Lambda Function Stack
       run: |
         aws cloudformation deploy \
@@ -119,4 +132,4 @@ jobs:
 
     - name: Verify Lambda Function Creation
       run: |
-        aws lambda get-function --function-name ${env.LAMBDA_FUNCTION_NAME} || echo "Function does not exist or access denied"
+        aws lambda get-function --function-name ${{ env.LAMBDA_FUNCTION_NAME }} || echo "Function does not exist or access denied"
