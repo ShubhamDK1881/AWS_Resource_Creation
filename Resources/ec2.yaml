@@ -4,7 +4,7 @@ Resources:
     Type: 'AWS::EC2::Instance'
     Properties:
       InstanceType: 't2.micro'
-      ImageId: 'ami-0c55b159cbfafe1f0'  # Make sure this AMI ID is available in your AWS region
+      ImageId: 'ami-00beae93a2d981137'  # Make sure this AMI ID is available in your AWS region
       Tags:
         - Key: Name
           Value: !Ref EC2InstanceName
