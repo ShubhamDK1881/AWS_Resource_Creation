@@ -9,4 +9,4 @@ Parameters:
   BucketName:
     Type: String
     Description: The name of the S3 bucket to create.
-    Default: my-demo-s3-bucket-test-project-18
+    Default: my-demo-s3-bucket-test-project-11
