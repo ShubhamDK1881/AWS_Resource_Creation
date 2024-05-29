@@ -14,6 +14,9 @@ jobs:
       VPC_NAME: my-demo-vpc
       S3_BUCKET_NAME: my-demo-s3-bucket-test-project-18
       EC2_INSTANCE_NAME: my-demo-ec2-instance
+      LAMBDA_FUNCTION_NAME: my-demo-lambda-function
+      LAMBDA_CODE_BUCKET: my-demo-s3-bucket-test-project-18
+      LAMBDA_CODE_KEY: lambda-code.zip
 
     steps:
     - name: Checkout repository
@@ -93,3 +96,27 @@ jobs:
     - name: Verify EC2 Instance Creation
       run: |
         aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.EC2_INSTANCE_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text || echo "Instance does not exist or access denied"
+
+    - name: Check if Lambda stack is in ROLLBACK_COMPLETE state
+      id: check_lambda_stack
+      run: |
+        STACK_STATUS=$(aws cloudformation describe-stacks --stack-name create-lambda-stack --query "Stacks[0].StackStatus" --output text || echo "STACK_NOT_FOUND")
+        echo "::set-output name=stack_status::$STACK_STATUS"
+
+    - name: Delete Lambda stack if in ROLLBACK_COMPLETE state
+      if: steps.check_lambda_stack.outputs.stack_status == 'ROLLBACK_COMPLETE'
+      run: |
+        aws cloudformation delete-stack --stack-name create-lambda-stack
+        aws cloudformation wait stack-delete-complete --stack-name create-lambda-stack
+
+    - name: Deploy Lambda Function Stack
+      run: |
+        aws cloudformation deploy \
+          --template-file Resources/lambda.yaml \
+          --stack-name create-lambda-stack \
+          --parameter-overrides LambdaFunctionName=${{ env.LAMBDA_FUNCTION_NAME }} LambdaCodeBucket=${{ env.LAMBDA_CODE_BUCKET }} LambdaCodeKey=${{ env.LAMBDA_CODE_KEY }} \
+          --capabilities CAPABILITY_NAMED_IAM
+
+    - name: Verify Lambda Function Creation
+      run: |
+        aws lambda get-function --function-name ${env.LAMBDA_FUNCTION_NAME} || echo "Function does not exist or access denied"
