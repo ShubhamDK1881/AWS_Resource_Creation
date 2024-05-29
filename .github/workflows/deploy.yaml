@@ -30,7 +30,7 @@ jobs:
       id: deploy_stack
       run: |
           aws cloudformation deploy \
-            --template-file ./main.yaml \
+            --template-file D:\AWS\GitHub_Actions_AWS\AWS_Resource_Creation\Resources\main.yaml \
             --stack-name my-demo-stack \
             --parameter-overrides \
               VPCName=${{ env.VPC_NAME }} \
