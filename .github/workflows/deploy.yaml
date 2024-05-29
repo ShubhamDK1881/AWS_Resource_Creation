@@ -31,10 +31,15 @@ jobs:
       run: |
         aws s3 ls || echo "Access to S3 service is denied"
 
+    - name: Delete Failed S3 Bucket Stack if Exists
+      run: |
+        aws cloudformation delete-stack --stack-name create-s3-bucket-stack || true
+        aws cloudformation wait stack-delete-complete --stack-name create-s3-bucket-stack || true
+
     - name: Deploy S3 Bucket Stack
       run: |
         aws cloudformation deploy \
-          --template-file Resources/create-s3-bucket.yaml \
+          --template-file create-s3-bucket.yaml \
           --stack-name create-s3-bucket-stack \
           --parameter-overrides \
             BucketName=${{ env.S3_BUCKET_NAME_CREATE }} \
