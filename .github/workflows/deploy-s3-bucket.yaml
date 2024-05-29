@@ -64,7 +64,7 @@ jobs:
     - name: Deploy EC2 Instance Stack
       run: |
         aws cloudformation deploy \
-          --template-file Resources/create-ec2-instance.yaml \
+          --template-file Resources/ec2.yaml \
           --stack-name create-ec2-instance-stack \
           --parameter-overrides EC2InstanceName=${{ env.EC2_INSTANCE_NAME }} \
           --capabilities CAPABILITY_NAMED_IAM
