@@ -1,4 +1,4 @@
-name: Deploy S3 Bucket
+name: Deploy AWS Resources
 
 on:
   push:
@@ -11,7 +11,10 @@ jobs:
 
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
-      S3_BUCKET_NAME: my-demo-s3-bucket-test-project-18
+      VPC_NAME: my-demo-vpc
+      S3_BUCKET_NAME: my-demo-s3-bucket
+      EC2_INSTANCE_NAME: my-demo-ec2
+      S3_BUCKET_NAME_CREATE: my-demo-cloudformation-bucket # Add your S3 bucket name here
 
     steps:
     - name: Checkout repository
@@ -24,14 +27,114 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
+    - name: Verify S3 Access
+      run: |
+        aws s3 ls || echo "Access to S3 service is denied"
+
+    - name: Delete Failed S3 Bucket Stack if Exists
+      run: |
+        aws cloudformation delete-stack --stack-name create-s3-bucket-stack || true
+        aws cloudformation wait stack-delete-complete --stack-name create-s3-bucket-stack || true
+
     - name: Deploy S3 Bucket Stack
       run: |
         aws cloudformation deploy \
-          --template-file Resources/create-s3-bucket.yaml \
+          --template-file create-s3-bucket.yaml \
           --stack-name create-s3-bucket-stack \
-          --parameter-overrides BucketName=${{ env.S3_BUCKET_NAME }} \
+          --parameter-overrides \
+            BucketName=${{ env.S3_BUCKET_NAME_CREATE }} \
           --capabilities CAPABILITY_NAMED_IAM
 
-    - name: Verify S3 Bucket Creation
+    - name: Upload nested stack templates to S3
       run: |
-        aws s3 ls s3://${{ env.S3_BUCKET_NAME }} || echo "Bucket does not exist or access denied"
+        aws s3 cp ./Resources/vpc.yaml s3://${{ env.S3_BUCKET_NAME_CREATE }}/vpc.yaml
+        aws s3 cp ./Resources/s3.yaml s3://${{ env.S3_BUCKET_NAME_CREATE }}/s3.yaml
+        aws s3 cp ./Resources/ec2.yaml s3://${{ env.S3_BUCKET_NAME_CREATE }}/ec2.yaml
+
+    - name: Deploy Main CloudFormation Stack
+      id: deploy_stack
+      run: |
+        aws cloudformation deploy \
+          --template-file ./Resources/main.yaml \
+          --stack-name my-demo-stack \
+          --parameter-overrides \
+            VPCName=${{ env.VPC_NAME }} \
+            S3BucketName=${{ env.S3_BUCKET_NAME }} \
+            EC2InstanceName=${{ env.EC2_INSTANCE_NAME }} \
+          --capabilities CAPABILITY_NAMED_IAM
+
+    - name: Get CloudFormation Outputs
+      id: get_outputs
+      run: |
+        outputs=$(aws cloudformation describe-stacks --stack-name my-demo-stack --query "Stacks[0].Outputs")
+        echo "outputs=$outputs" >> $GITHUB_ENV
+        VPC_ID=$(echo $outputs | jq -r '.[] | select(.OutputKey=="VPCId") | .OutputValue')
+        INSTANCE_ID=$(echo $outputs | jq -r '.[] | select(.OutputKey=="InstanceId") | .OutputValue')
+        BUCKET_NAME=$(echo $outputs | jq -r '.[] | select(.OutputKey=="BucketName") | .OutputValue')
+        echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
+        echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+        echo "BUCKET_NAME=$BUCKET_NAME" >> $GITHUB_ENV
+
+    - name: Save VPC ID as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: vpc-id
+        path: ${{ env.VPC_ID }}
+
+    - name: Save EC2 Instance ID as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ec2-instance-id
+        path: ${{ env.INSTANCE_ID }}
+
+    - name: Save S3 Bucket Name as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: s3-bucket-name
+        path: ${{ env.BUCKET_NAME }}
+
+    - name: Cache Node.js dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm test
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: vpc-id
+        path: ./artifacts
+
+    - name: Print VPC ID
+      run: cat ./artifacts/vpc-id
+
+    - name: Download EC2 artifact and output
+      uses: actions/download-artifact@v3
+      with:
+        name: ec2-instance-id
+        path: ./artifacts
+
+    - name: Print EC2 Instance ID
+      run: cat ./artifacts/ec2-instance-id
+
+    - name: Download S3 artifact and output
+      uses: actions/download-artifact@v3
+      with:
+        name: s3-bucket-name
+        path: ./artifacts
+
+    - name: Print S3 Bucket Name
+      run: cat ./artifacts/s3-bucket-name
