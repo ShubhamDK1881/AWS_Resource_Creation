@@ -14,7 +14,6 @@ jobs:
       VPC_NAME: my-demo-vpc
       S3_BUCKET_NAME: my-demo-s3-bucket
       EC2_INSTANCE_NAME: my-demo-ec2
-      S3_TEMPLATE_BUCKET: <YOUR_BUCKET>
 
     steps:
     - name: Checkout repository
@@ -114,7 +113,3 @@ jobs:
 
     - name: Print S3 Bucket Name
       run: cat ./artifacts/s3-bucket-name
-
-    - name: Conditional step example
-      if: always() && steps.get_outputs.outputs.INSTANCE_ID != ''
-      run: echo "EC2 instance created with ID: ${{ env.INSTANCE_ID }}"
