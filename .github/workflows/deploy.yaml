@@ -29,15 +29,14 @@ jobs:
     - name: Deploy CloudFormation Stack
       id: deploy_stack
       run: |
-        aws cloudformation deploy \
-          --template-file deploy.yaml \
-          --stack-name my-demo-stack \
-          --parameter-overrides \
-            VPCName=${{ env.VPC_NAME }} \
-            S3BucketName=${{ env.S3_BUCKET_NAME }} \
-            EC2InstanceName=${{ env.EC2_INSTANCE_NAME }} \
-          --capabilities CAPABILITY_NAMED_IAM
-
+          aws cloudformation deploy \
+            --template-file ./deploy.yaml \
+            --stack-name my-demo-stack \
+            --parameter-overrides \
+              VPCName=${{ env.VPC_NAME }} \
+              S3BucketName=${{ env.S3_BUCKET_NAME }} \
+              EC2InstanceName=${{ env.EC2_INSTANCE_NAME }} \
+            --capabilities CAPABILITY_NAMED_IAM
     - name: Get CloudFormation Outputs
       id: get_outputs
       run: |
