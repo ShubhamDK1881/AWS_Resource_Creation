@@ -1,0 +1,37 @@
+name: Deploy S3 Bucket
+
+on:
+  push:
+    branches:
+      - Dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_BUCKET_NAME: my-demo-s3-bucket
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy S3 Bucket Stack
+      run: |
+        aws cloudformation deploy \
+          --template-file Resources/create-s3-bucket.yaml \
+          --stack-name create-s3-bucket-stack \
+          --parameter-overrides BucketName=${{ env.S3_BUCKET_NAME }} \
+          --capabilities CAPABILITY_NAMED_IAM
+
+    - name: Verify S3 Bucket Creation
+      run: |
+        aws s3 ls s3://${{ env.S3_BUCKET_NAME }} || echo "Bucket does not exist or access denied"

@@ -1,27 +1,12 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Resources:
   S3Bucket:
-    Type: 'AWS::S3::Bucket'
+    Type: "AWS::S3::Bucket"
     Properties:
       BucketName: !Ref BucketName
-      AccessControl: Private
-
-  S3BucketPolicy:
-    Type: 'AWS::S3::BucketPolicy'
-    Properties:
-      Bucket: !Ref S3Bucket
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: AllowFullAccess
-            Effect: Allow
-            Principal: "*"
-            Action: "s3:*"
-            Resource:
-              - !Sub 'arn:aws:s3:::${BucketName}'
-              - !Sub 'arn:aws:s3:::${BucketName}/*'
 
 Parameters:
   BucketName:
     Type: String
-    Description: Name of the S3 bucket to create
+    Description: The name of the S3 bucket to create.
+    Default: my-demo-s3-bucket
