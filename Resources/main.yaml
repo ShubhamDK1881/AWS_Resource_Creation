@@ -1,6 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-
   VPCStack:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
@@ -8,12 +7,69 @@ Resources:
       Parameters:
         VPCName: !Ref VPCName
 
-  S3Stack:
+  IAMRoleStack:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: !Sub 'https://${S3BucketNameCreate}.s3.amazonaws.com/iam-role.yaml'
+      Parameters:
+        Environment: !Ref Environment
+
+  S3Stack1:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub 'https://${S3BucketNameCreate}.s3.amazonaws.com/s3.yaml'
       Parameters:
-        S3BucketName: !Ref S3BucketName
+        S3BucketName: !Ref LambdaCodeBucket1
+        AccessControl: !Ref AccessControl
+        VersioningStatus: !Ref VersioningStatus
+
+  S3Stack2:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: !Sub 'https://${S3BucketNameCreate}.s3.amazonaws.com/s3.yaml'
+      Parameters:
+        S3BucketName: !Ref LambdaCodeBucket2
+        AccessControl: !Ref AccessControl
+        VersioningStatus: !Ref VersioningStatus
+
+  S3Stack3:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: !Sub 'https://${S3BucketNameCreate}.s3.amazonaws.com/s3.yaml'
+      Parameters:
+        S3BucketName: !Ref LambdaCodeBucket3
+        AccessControl: !Ref AccessControl
+        VersioningStatus: !Ref VersioningStatus
+
+  LambdaStack1:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: !Sub 'https://${S3BucketNameCreate}.s3.amazonaws.com/lambda.yaml'
+      Parameters:
+        LambdaFunctionName: !Ref LambdaFunctionName1
+        LambdaCodeBucket: !Ref LambdaCodeBucket1
+        LambdaCodeKey: !Ref LambdaCodeKey
+        LambdaExecutionRoleArn: !GetAtt [IAMRoleStack, Outputs.LambdaExecutionRoleArn]
+
+  LambdaStack2:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: !Sub 'https://${S3BucketNameCreate}.s3.amazonaws.com/lambda.yaml'
+      Parameters:
+        LambdaFunctionName: !Ref LambdaFunctionName2
+        LambdaCodeBucket: !Ref LambdaCodeBucket2
+        LambdaCodeKey: !Ref LambdaCodeKey
+        LambdaExecutionRoleArn: !GetAtt [IAMRoleStack, Outputs.LambdaExecutionRoleArn]
+
+  LambdaStack3:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: !Sub 'https://${S3BucketNameCreate}.s3.amazonaws.com/lambda.yaml'
+      Parameters:
+        LambdaFunctionName: !Ref LambdaFunctionName3
+        LambdaCodeBucket: !Ref LambdaCodeBucket3
+        LambdaCodeKey: !Ref LambdaCodeKey
+        LambdaExecutionRoleArn: !GetAtt [IAMRoleStack, Outputs.LambdaExecutionRoleArn]
 
   EC2Stack:
     Type: 'AWS::CloudFormation::Stack'
@@ -25,21 +81,75 @@ Resources:
 Parameters:
   VPCName:
     Type: String
-    Default: my-demo-vpc
+    Description: "The name of the VPC."
 
-  S3BucketName:
+  LambdaFunctionName1:
     Type: String
-    Default: my-demo-s3-bucket
+    Description: "The name of the first Lambda function."
+
+  LambdaFunctionName2:
+    Type: String
+    Description: "The name of the second Lambda function."
+
+  LambdaFunctionName3:
+    Type: String
+    Description: "The name of the third Lambda function."
+
+  LambdaCodeBucket1:
+    Type: String
+    Description: "The S3 bucket for the first Lambda function code."
+
+  LambdaCodeBucket2:
+    Type: String
+    Description: "The S3 bucket for the second Lambda function code."
+
+  LambdaCodeBucket3:
+    Type: String
+    Description: "The S3 bucket for the third Lambda function code."
+
+  LambdaCodeKey:
+    Type: String
+    Description: "The S3 key for the Lambda function code."
 
   EC2InstanceName:
     Type: String
-    Default: my-demo-ec2
+    Description: "The name of the EC2 instance."
 
   S3BucketNameCreate:
     Type: String
-    Default: my-demo-cloudformation-bucket
+    Description: "The S3 bucket name for CloudFormation templates."
+
+  Environment:
+    Type: String
+    Description: "The environment (e.g., dev, prod)."
+
+  AccessControl:
+    Type: String
+    Default: "Private"
+    AllowedValues:
+      - Private
+      - PublicRead
+      - PublicReadWrite
+      - AuthenticatedRead
+    Description: "The access control for the S3 bucket."
+
+  VersioningStatus:
+    Type: String
+    Default: "Suspended"
+    AllowedValues:
+      - Enabled
+      - Suspended
+    Description: "The versioning status for the S3 bucket."
 
 Outputs:
-  MyS3BucketName:
-    Description: "S3 Bucket created for CloudFormation templates"
+  VPCId:
+    Description: "VPC ID"
+    Value: !GetAtt VPCStack.Outputs.VPCId
+
+  InstanceId:
+    Description: "EC2 Instance ID"
+    Value: !GetAtt EC2Stack.Outputs.InstanceId
+
+  BucketName:
+    Description: "S3 Bucket Name"
     Value: !Ref S3BucketNameCreate

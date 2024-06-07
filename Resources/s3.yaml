@@ -4,8 +4,34 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: !Ref S3BucketName
+      AccessControl: !Ref AccessControl
+      VersioningConfiguration:
+        Status: !Ref VersioningStatus
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Description: "The name of the S3 bucket."
+
+  AccessControl:
+    Type: String
+    Default: "Private"
+    AllowedValues:
+      - Private
+      - PublicRead
+      - PublicReadWrite
+      - AuthenticatedRead
+    Description: "The access control for the S3 bucket."
+
+  VersioningStatus:
+    Type: String
+    Default: "Suspended"
+    AllowedValues:
+      - Enabled
+      - Suspended
+    Description: "The versioning status for the S3 bucket."
 
 Outputs:
   BucketName:
-    Description: 'The name of the S3 bucket'
-    Value: !Ref S3Bucket
+    Description: "The name of the S3 bucket."
+    Value: !Ref S3BucketName

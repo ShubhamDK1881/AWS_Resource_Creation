@@ -1,51 +1,29 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  LambdaExecutionRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: 'Allow'
-            Principal:
-              Service: 'lambda.amazonaws.com'
-            Action: 'sts:AssumeRole'
-      Policies:
-        - PolicyName: 'lambda-execution-policy'
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: 'Allow'
-                Action:
-                  - 'logs:CreateLogGroup'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
-                Resource: 'arn:aws:logs:*:*:*'
-
   LambdaFunction:
     Type: 'AWS::Lambda::Function'
     Properties:
       FunctionName: !Ref LambdaFunctionName
       Handler: 'index.handler'
-      Role: !GetAtt LambdaExecutionRole.Arn
+      Role: !Ref LambdaExecutionRoleArn
       Code:
         S3Bucket: !Ref LambdaCodeBucket
         S3Key: !Ref LambdaCodeKey
-      Runtime: 'nodejs20.x'
-      Timeout: 10
+      Runtime: 'nodejs14.x'
 
 Parameters:
   LambdaFunctionName:
     Type: String
-    Default: 'my-demo-lambda-function'
+    Description: 'The name of the Lambda function.'
 
   LambdaCodeBucket:
     Type: String
+    Description: 'The S3 bucket containing the Lambda code.'
 
   LambdaCodeKey:
     Type: String
+    Description: 'The S3 key of the Lambda code.'
 
-Outputs:
-  LambdaFunctionArn:
-    Description: 'ARN of the Lambda function'
-    Value: !GetAtt LambdaFunction.Arn
+  LambdaExecutionRoleArn:
+    Type: String
+    Description: 'The ARN of the Lambda execution role.'
