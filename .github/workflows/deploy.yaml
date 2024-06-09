@@ -38,14 +38,7 @@ jobs:
       - name: Create S3 Bucket if Not Exists
         if: env.bucket_exists == 'false'
         run: |
-          aws cloudformation deploy \
-            --template-file Resources/s3.yaml \
-            --stack-name your-s3-bucket-stack-name \
-            --parameter-overrides \
-              S3BucketName=your-unique-s3-bucket-name \
-              AccessControl=Private \
-              VersioningStatus=Enabled \
-            --capabilities CAPABILITY_NAMED_IAM
+          aws s3api create-bucket --bucket your-unique-s3-bucket-name --region $AWS_REGION
 
       - name: Upload nested stack templates to S3
         run: |
