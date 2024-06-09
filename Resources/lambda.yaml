@@ -1,51 +1,33 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  LambdaExecutionRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: 'Allow'
-            Principal:
-              Service: 'lambda.amazonaws.com'
-            Action: 'sts:AssumeRole'
-      Policies:
-        - PolicyName: 'lambda-execution-policy'
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: 'Allow'
-                Action:
-                  - 'logs:CreateLogGroup'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
-                Resource: 'arn:aws:logs:*:*:*'
-
   LambdaFunction:
     Type: 'AWS::Lambda::Function'
     Properties:
       FunctionName: !Ref LambdaFunctionName
       Handler: 'index.handler'
-      Role: !GetAtt LambdaExecutionRole.Arn
+      Role: !ImportValue LambdaExecutionRoleArn
       Code:
         S3Bucket: !Ref LambdaCodeBucket
         S3Key: !Ref LambdaCodeKey
-      Runtime: 'nodejs20.x'
-      Timeout: 10
+      Runtime: 'nodejs14.x'
+
+Outputs:
+  FunctionArn:
+    Description: 'The ARN of the Lambda function'
+    Value: !GetAtt LambdaFunction.Arn
+    Export:
+      Name: LambdaFunctionArn
 
 Parameters:
   LambdaFunctionName:
     Type: String
-    Default: 'my-demo-lambda-function'
-
+    Description: The name of the Lambda function
+    Default: demo-lambda-function
   LambdaCodeBucket:
     Type: String
-
+    Description: The name of the S3 bucket containing the Lambda function code
+    Default: demo-s3-bucket-lambda
   LambdaCodeKey:
     Type: String
-
-Outputs:
-  LambdaFunctionArn:
-    Description: 'ARN of the Lambda function'
-    Value: !GetAtt LambdaFunction.Arn
+    Description: The key of the Lambda function code in the S3 bucket
+    Default: lambda-code.zip

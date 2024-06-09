@@ -1,45 +1,58 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
+
 Resources:
-
-  VPCStack:
-    Type: 'AWS::CloudFormation::Stack'
+  VPC:
+    Type: "AWS::EC2::VPC"
     Properties:
-      TemplateURL: !Sub 'https://${S3BucketNameCreate}.s3.amazonaws.com/vpc.yaml'
-      Parameters:
-        VPCName: !Ref VPCName
+      CidrBlock: "10.0.0.0/16"
+      Tags:
+        - Key: "Name"
+          Value: !Ref VPCName
 
-  S3Stack:
-    Type: 'AWS::CloudFormation::Stack'
+  S3Bucket:
+    Type: "AWS::S3::Bucket"
     Properties:
-      TemplateURL: !Sub 'https://${S3BucketNameCreate}.s3.amazonaws.com/s3.yaml'
-      Parameters:
-        S3BucketName: !Ref S3BucketName
+      BucketName: !Ref S3BucketNameCreate
+      AccessControl: !Ref AccessControl
+      VersioningConfiguration:
+        Status: !Ref VersioningStatus
 
-  EC2Stack:
-    Type: 'AWS::CloudFormation::Stack'
-    Properties:
-      TemplateURL: !Sub 'https://${S3BucketNameCreate}.s3.amazonaws.com/ec2.yaml'
-      Parameters:
-        EC2InstanceName: !Ref EC2InstanceName
+Outputs:
+  VPCId:
+    Description: "The ID of the VPC"
+    Value: !Ref VPC
+    Export:
+      Name: "VPCId"
+
+  BucketName:
+    Description: "The name of the S3 bucket"
+    Value: !Ref S3Bucket
+    Export:
+      Name: "BucketName"
 
 Parameters:
   VPCName:
     Type: String
-    Default: my-demo-vpc
-
-  S3BucketName:
-    Type: String
-    Default: my-demo-s3-bucket
-
-  EC2InstanceName:
-    Type: String
-    Default: my-demo-ec2
+    Description: The name of the VPC
+    Default: demo-vpc
 
   S3BucketNameCreate:
     Type: String
-    Default: my-demo-cloudformation-bucket
+    Description: The name of the S3 bucket
+    Default: demo-s3-bucket
 
-Outputs:
-  MyS3BucketName:
-    Description: "S3 Bucket created for CloudFormation templates"
-    Value: !Ref S3BucketNameCreate
+  AccessControl:
+    Type: String
+    Description: The access control for the S3 bucket
+    Default: Private
+    AllowedValues:
+      - Private
+      - PublicRead
+
+  VersioningStatus:
+    Type: String
+    Description: The versioning status for the S3 bucket
+    Default: Enabled
+    AllowedValues:
+      - Enabled
+      - Suspended

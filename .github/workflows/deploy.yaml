@@ -1,0 +1,145 @@
+name: Deploy AWS Resources
+
+on:
+  push:
+    branches:
+      - Dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Verify S3 Access
+        run: aws s3 ls || echo "Access to S3 service is denied"
+
+      - name: Check if S3 Bucket Exists
+        id: check_bucket
+        run: |
+          if aws s3 ls "s3://my-demo-s3-bucket-test-project-11" 2>&1 | grep -q 'NoSuchBucket'; then
+            echo "bucket_exists=false" >> $GITHUB_ENV
+          else
+            echo "bucket_exists=true" >> $GITHUB_ENV
+          fi
+      - name: Create S3 Bucket if Not Exists
+        if: env.bucket_exists == 'false'
+        run: |
+          aws s3api create-bucket --bucket my-demo-s3-bucket-test-project-11 --region $AWS_REGION
+
+      - name: Upload nested stack templates to S3
+        run: |
+          aws s3 cp ./Resources/vpc.yaml s3://my-demo-s3-bucket-test-project-11/vpc.yaml
+          aws s3 cp ./Resources/s3.yaml s3://my-demo-s3-bucket-test-project-11/s3.yaml
+          aws s3 cp ./Resources/ec2.yaml s3://my-demo-s3-bucket-test-project-11/ec2.yaml
+          aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-11/iam-role.yaml
+          aws s3 cp ./Resources/lambda.yaml s3://my-demo-s3-bucket-test-project-11/lambda.yaml
+          aws s3 cp ./parameters/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
+          aws s3 cp ./parameters/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
+
+      - name: Create Lambda zip
+        run: |
+          mkdir -p lambda-function
+          echo "exports.handler = async (event) => { console.log('Event:', event); return { statusCode: 200, body: JSON.stringify('Hello from Lambda!') }; };" > lambda-function/index.js
+          cd lambda-function
+          zip -r lambda-code.zip .
+          cd ..
+          mv lambda-function/lambda-code.zip .
+
+      - name: Upload Lambda Code to S3
+        run: aws s3 cp lambda-code.zip s3://my-demo-s3-bucket-test-project-11/lambda-code.zip
+
+      - name: Deploy Main CloudFormation Stack
+        id: deploy_stack
+        run: |
+          aws cloudformation deploy \
+            --template-file ./Resources/main.yaml \
+            --stack-name your-main-stack-name \
+            --parameter-overrides \
+              VPCName=dev-demo-vpc \
+              LambdaFunctionName1=dev-demo-lambda-function-1 \
+              LambdaFunctionName2=dev-demo-lambda-function-2 \
+              LambdaFunctionName3=dev-demo-lambda-function-3 \
+              LambdaCodeBucket1=dev-demo-s3-bucket-lambda-1 \
+              LambdaCodeBucket2=dev-demo-s3-bucket-lambda-2 \
+              LambdaCodeBucket3=dev-demo-s3-bucket-lambda-3 \
+              LambdaCodeKey=lambda-code.zip \
+              EC2InstanceName=dev-demo-ec2-instance \
+              S3BucketNameCreate=dev-demo-cloudformation-bucket \
+              Environment=dev \
+              AccessControl=Private \
+              VersioningStatus=Enabled \
+            --capabilities CAPABILITY_NAMED_IAM
+
+      - name: Get CloudFormation Outputs
+        id: get_outputs
+        run: |
+          outputs=$(aws cloudformation describe-stacks --stack-name your-main-stack-name --query "Stacks[0].Outputs" --output json)
+          echo "outputs=$(echo $outputs | jq -c .)" >> $GITHUB_ENV
+
+      - name: Parse and Set Outputs
+        run: |
+          VPC_ID=$(echo $outputs | jq -r '.[] | select(.OutputKey=="VPCId") | .OutputValue')
+          INSTANCE_ID=$(echo $outputs | jq -r '.[] | select(.OutputKey=="InstanceId") | .OutputValue')
+          BUCKET_NAME=$(echo $outputs | jq -r '.[] | select(.OutputKey=="BucketName") | .OutputValue')
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+          echo "BUCKET_NAME=$BUCKET_NAME" >> $GITHUB_ENV
+
+      - name: Save VPC ID as artifact
+        run: echo ${{ env.VPC_ID }} > vpc-id.txt
+
+      - name: Upload VPC ID artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: vpc-id
+          path: vpc-id.txt
+
+      - name: Save EC2 Instance ID as artifact
+        run: echo ${{ env.INSTANCE_ID }} > ec2-instance-id.txt
+
+      - name: Upload EC2 Instance ID artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ec2-instance-id
+          path: ec2-instance-id.txt
+
+      - name: Save S3 Bucket Name as artifact
+        run: echo ${{ env.BUCKET_NAME }} > s3-bucket-name.txt
+
+      - name: Upload S3 Bucket Name artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: s3-bucket-name
+          path: s3-bucket-name.txt
+
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
