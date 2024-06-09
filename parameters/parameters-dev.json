@@ -8,7 +8,7 @@
   "LambdaCodeBucket3": "dev-demo-s3-bucket-lambda-3",
   "LambdaCodeKey": "lambda-code.zip",
   "EC2InstanceName": "dev-demo-ec2-instance",
-  "S3BucketNameCreate": "dev-demo-cloudformation-bucket",
+  "S3BucketNameCreate": "your-unique-s3-bucket-name",
   "Environment": "dev",
   "S3BucketPrefix": "dev-demo-s3-bucket"
 }

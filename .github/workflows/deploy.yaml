@@ -26,31 +26,36 @@ jobs:
       - name: Verify S3 Access
         run: aws s3 ls || echo "Access to S3 service is denied"
 
-      - name: Delete Failed S3 Bucket Stack if Exists
+      - name: Check if S3 Bucket Exists
+        id: check_bucket
         run: |
-          aws cloudformation delete-stack --stack-name your-s3-bucket-stack-name || true
-          aws cloudformation wait stack-delete-complete --stack-name your-s3-bucket-stack-name || true
+          if aws s3 ls "s3://your-unique-s3-bucket-name" 2>&1 | grep -q 'NoSuchBucket'; then
+            echo "bucket_exists=false" >> $GITHUB_ENV
+          else
+            echo "bucket_exists=true" >> $GITHUB_ENV
+          fi
 
-      - name: Deploy S3 Bucket Stack
+      - name: Create S3 Bucket if Not Exists
+        if: env.bucket_exists == 'false'
         run: |
           aws cloudformation deploy \
             --template-file Resources/s3.yaml \
             --stack-name your-s3-bucket-stack-name \
             --parameter-overrides \
-              S3BucketName=your-s3-bucket-name \
+              S3BucketName=your-unique-s3-bucket-name \
               AccessControl=Private \
               VersioningStatus=Enabled \
             --capabilities CAPABILITY_NAMED_IAM
 
       - name: Upload nested stack templates to S3
         run: |
-          aws s3 cp ./Resources/vpc.yaml s3://your-s3-bucket-name/vpc.yaml
-          aws s3 cp ./Resources/s3.yaml s3://your-s3-bucket-name/s3.yaml
-          aws s3 cp ./Resources/ec2.yaml s3://your-s3-bucket-name/ec2.yaml
-          aws s3 cp ./Resources/iam-role.yaml s3://your-s3-bucket-name/iam-role.yaml
-          aws s3 cp ./Resources/lambda.yaml s3://your-s3-bucket-name/lambda.yaml
-          aws s3 cp ./parameters/parameters-dev.json s3://your-s3-bucket-name/parameters-dev.json
-          aws s3 cp ./parameters/parameters-prod.json s3://your-s3-bucket-name/parameters-prod.json
+          aws s3 cp ./Resources/vpc.yaml s3://your-unique-s3-bucket-name/vpc.yaml
+          aws s3 cp ./Resources/s3.yaml s3://your-unique-s3-bucket-name/s3.yaml
+          aws s3 cp ./Resources/ec2.yaml s3://your-unique-s3-bucket-name/ec2.yaml
+          aws s3 cp ./Resources/iam-role.yaml s3://your-unique-s3-bucket-name/iam-role.yaml
+          aws s3 cp ./Resources/lambda.yaml s3://your-unique-s3-bucket-name/lambda.yaml
+          aws s3 cp ./parameters/parameters-dev.json s3://your-unique-s3-bucket-name/parameters-dev.json
+          aws s3 cp ./parameters/parameters-prod.json s3://your-unique-s3-bucket-name/parameters-prod.json
 
       - name: Create Lambda zip
         run: |
@@ -62,7 +67,7 @@ jobs:
           mv lambda-function/lambda-code.zip .
 
       - name: Upload Lambda Code to S3
-        run: aws s3 cp lambda-code.zip s3://your-s3-bucket-name/lambda-code.zip
+        run: aws s3 cp lambda-code.zip s3://your-unique-s3-bucket-name/lambda-code.zip
 
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
