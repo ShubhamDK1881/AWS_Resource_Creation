@@ -45,7 +45,6 @@ jobs:
           aws s3 cp ./Resources/vpc.yaml s3://your-unique-s3-bucket-name/vpc.yaml
           aws s3 cp ./Resources/s3.yaml s3://your-unique-s3-bucket-name/s3.yaml
           aws s3 cp ./Resources/ec2.yaml s3://your-unique-s3-bucket-name/ec2.yaml
-          aws s3 cp ./Resources/iam-role.yaml s3://your-unique-s3-bucket-name/iam-role.yaml
           aws s3 cp ./Resources/lambda.yaml s3://your-unique-s3-bucket-name/lambda.yaml
           aws s3 cp ./parameters/parameters-dev.json s3://your-unique-s3-bucket-name/parameters-dev.json
           aws s3 cp ./parameters/parameters-prod.json s3://your-unique-s3-bucket-name/parameters-prod.json
