@@ -13,8 +13,11 @@ Outputs:
   InstanceId:
     Description: 'The ID of the EC2 instance'
     Value: !Ref EC2Instance
+    Export:
+      Name: InstanceId
 
 Parameters:
   EC2InstanceName:
     Type: String
-    Default: my-demo-ec2-instance
+    Description: The name of the EC2 instance
+    Default: demo-ec2-instance

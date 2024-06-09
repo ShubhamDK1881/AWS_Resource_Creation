@@ -1,22 +1,22 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Resources:
   VPC:
-    Type: 'AWS::EC2::VPC'
+    Type: "AWS::EC2::VPC"
     Properties:
-      CidrBlock: '10.0.0.0/16'
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
+      CidrBlock: "10.0.0.0/16"
       Tags:
-        - Key: Name
+        - Key: "Name"
           Value: !Ref VPCName
 
 Outputs:
   VPCId:
-    Description: 'The ID of the VPC'
+    Description: "The ID of the VPC"
     Value: !Ref VPC
+    Export:
+      Name: "VPCId"
 
 Parameters:
   VPCName:
     Type: String
-    Description: "The name of the VPC."
-    Default: my-demo-vpc
+    Description: The name of the VPC
+    Default: demo-vpc

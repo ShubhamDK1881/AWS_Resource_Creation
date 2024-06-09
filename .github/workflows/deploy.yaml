@@ -11,12 +11,6 @@ jobs:
 
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
-      S3_BUCKET_NAME: your-s3-bucket-name
-      VPC_NAME: your-vpc-name
-      LAMBDA_FUNCTION_NAME_1: your-lambda-function-name-1
-      LAMBDA_FUNCTION_NAME_2: your-lambda-function-name-2
-      LAMBDA_FUNCTION_NAME_3: your-lambda-function-name-3
-      IAM_ROLE_NAME: your-iam-role-name
 
     steps:
       - name: Checkout repository
@@ -30,8 +24,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Verify S3 Access
-        run: |
-          aws s3 ls || echo "Access to S3 service is denied"
+        run: aws s3 ls || echo "Access to S3 service is denied"
 
       - name: Delete Failed S3 Bucket Stack if Exists
         run: |
@@ -44,20 +37,20 @@ jobs:
             --template-file Resources/s3.yaml \
             --stack-name your-s3-bucket-stack-name \
             --parameter-overrides \
-              S3BucketName=$S3_BUCKET_NAME \
+              S3BucketName=your-s3-bucket-name \
               AccessControl=Private \
               VersioningStatus=Enabled \
             --capabilities CAPABILITY_NAMED_IAM
 
       - name: Upload nested stack templates to S3
         run: |
-          aws s3 cp ./Resources/vpc.yaml s3://$S3_BUCKET_NAME/vpc.yaml
-          aws s3 cp ./Resources/s3.yaml s3://$S3_BUCKET_NAME/s3.yaml
-          aws s3 cp ./Resources/ec2.yaml s3://$S3_BUCKET_NAME/ec2.yaml
-          aws s3 cp ./Resources/iam-role.yaml s3://$S3_BUCKET_NAME/iam-role.yaml
-          aws s3 cp ./Resources/lambda.yaml s3://$S3_BUCKET_NAME/lambda.yaml
-          aws s3 cp ./parameters/parameters-dev.json s3://$S3_BUCKET_NAME/parameters-dev.json
-          aws s3 cp ./parameters/parameters-prod.json s3://$S3_BUCKET_NAME/parameters-prod.json
+          aws s3 cp ./Resources/vpc.yaml s3://your-s3-bucket-name/vpc.yaml
+          aws s3 cp ./Resources/s3.yaml s3://your-s3-bucket-name/s3.yaml
+          aws s3 cp ./Resources/ec2.yaml s3://your-s3-bucket-name/ec2.yaml
+          aws s3 cp ./Resources/iam-role.yaml s3://your-s3-bucket-name/iam-role.yaml
+          aws s3 cp ./Resources/lambda.yaml s3://your-s3-bucket-name/lambda.yaml
+          aws s3 cp ./parameters/parameters-dev.json s3://your-s3-bucket-name/parameters-dev.json
+          aws s3 cp ./parameters/parameters-prod.json s3://your-s3-bucket-name/parameters-prod.json
 
       - name: Create Lambda zip
         run: |
@@ -69,8 +62,7 @@ jobs:
           mv lambda-function/lambda-code.zip .
 
       - name: Upload Lambda Code to S3
-        run: |
-          aws s3 cp lambda-code.zip s3://$S3_BUCKET_NAME/lambda-code.zip
+        run: aws s3 cp lambda-code.zip s3://your-s3-bucket-name/lambda-code.zip
 
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
@@ -79,17 +71,17 @@ jobs:
             --template-file ./Resources/main.yaml \
             --stack-name your-main-stack-name \
             --parameter-overrides \
-              VPCName=$VPC_NAME \
-              LambdaFunctionName1=$LAMBDA_FUNCTION_NAME_1 \
-              LambdaFunctionName2=$LAMBDA_FUNCTION_NAME_2 \
-              LambdaFunctionName3=$LAMBDA_FUNCTION_NAME_3 \
-              LambdaCodeBucket1=$S3_BUCKET_NAME \
-              LambdaCodeBucket2=$S3_BUCKET_NAME \
-              LambdaCodeBucket3=$S3_BUCKET_NAME \
+              VPCName=dev-demo-vpc \
+              LambdaFunctionName1=dev-demo-lambda-function-1 \
+              LambdaFunctionName2=dev-demo-lambda-function-2 \
+              LambdaFunctionName3=dev-demo-lambda-function-3 \
+              LambdaCodeBucket1=dev-demo-s3-bucket-lambda-1 \
+              LambdaCodeBucket2=dev-demo-s3-bucket-lambda-2 \
+              LambdaCodeBucket3=dev-demo-s3-bucket-lambda-3 \
               LambdaCodeKey=lambda-code.zip \
-              EC2InstanceName=your-ec2-instance-name \
-              S3BucketNameCreate=$S3_BUCKET_NAME \
-              Environment=Dev \
+              EC2InstanceName=dev-demo-ec2-instance \
+              S3BucketNameCreate=dev-demo-cloudformation-bucket \
+              Environment=dev \
               AccessControl=Private \
               VersioningStatus=Enabled \
             --capabilities CAPABILITY_NAMED_IAM

@@ -1,14 +1,14 @@
-  {
-    "VPCName": "prod-demo-vpc",
-    "LambdaFunctionName1": "prod-demo-lambda-function-1",
-    "LambdaFunctionName2": "prod-demo-lambda-function-2",
-    "LambdaFunctionName3": "prod-demo-lambda-function-3",
-    "LambdaCodeBucket1": "prod-demo-s3-bucket-lambda-1",
-    "LambdaCodeBucket2": "prod-demo-s3-bucket-lambda-2",
-    "LambdaCodeBucket3": "prod-demo-s3-bucket-lambda-3",
-    "LambdaCodeKey": "lambda-code.zip",
-    "EC2InstanceName": "prod-demo-ec2-instance",
-    "S3BucketNameCreate": "prod-demo-cloudformation-bucket",
-    "Environment": "prod",
-    "S3BucketPrefix": "prod-demo-s3-bucket"
-  }
+{
+  "VPCName": "prod-demo-vpc",
+  "LambdaFunctionName1": "prod-demo-lambda-function-1",
+  "LambdaFunctionName2": "prod-demo-lambda-function-2",
+  "LambdaFunctionName3": "prod-demo-lambda-function-3",
+  "LambdaCodeBucket1": "prod-demo-s3-bucket-lambda-1",
+  "LambdaCodeBucket2": "prod-demo-s3-bucket-lambda-2",
+  "LambdaCodeBucket3": "prod-demo-s3-bucket-lambda-3",
+  "LambdaCodeKey": "lambda-code.zip",
+  "EC2InstanceName": "prod-demo-ec2-instance",
+  "S3BucketNameCreate": "prod-demo-cloudformation-bucket",
+  "Environment": "prod",
+  "S3BucketPrefix": "prod-demo-s3-bucket"
+}
