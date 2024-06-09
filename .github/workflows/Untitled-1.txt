@@ -1,3 +1,0 @@
-Compress-Archive -Path "C:\Users\Username\lambda-function" -DestinationPath "C:\Users\Username\lambda-code.zip"
-
-Compress-Archive -Path "C:\Users\Username\lambda-function" -DestinationPath "C:\Users\Username\lambda-code.zip"

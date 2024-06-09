@@ -11,6 +11,12 @@ jobs:
 
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_BUCKET_NAME: your-s3-bucket-name
+      VPC_NAME: your-vpc-name
+      LAMBDA_FUNCTION_NAME_1: your-lambda-function-name-1
+      LAMBDA_FUNCTION_NAME_2: your-lambda-function-name-2
+      LAMBDA_FUNCTION_NAME_3: your-lambda-function-name-3
+      IAM_ROLE_NAME: your-iam-role-name
 
     steps:
       - name: Checkout repository
@@ -29,29 +35,29 @@ jobs:
 
       - name: Delete Failed S3 Bucket Stack if Exists
         run: |
-          aws cloudformation delete-stack --stack-name ${{ secrets.S3_BUCKET_STACK_NAME }} || true
-          aws cloudformation wait stack-delete-complete --stack-name ${{ secrets.S3_BUCKET_STACK_NAME }} || true
+          aws cloudformation delete-stack --stack-name your-s3-bucket-stack-name || true
+          aws cloudformation wait stack-delete-complete --stack-name your-s3-bucket-stack-name || true
 
       - name: Deploy S3 Bucket Stack
         run: |
           aws cloudformation deploy \
             --template-file Resources/s3.yaml \
-            --stack-name ${{ secrets.S3_BUCKET_STACK_NAME }} \
+            --stack-name your-s3-bucket-stack-name \
             --parameter-overrides \
-              S3BucketName=${{ secrets.S3_BUCKET_NAME }} \
-              AccessControl=${{ secrets.S3_ACCESS_CONTROL }} \
-              VersioningStatus=${{ secrets.S3_VERSIONING_STATUS }} \
+              S3BucketName=$S3_BUCKET_NAME \
+              AccessControl=Private \
+              VersioningStatus=Enabled \
             --capabilities CAPABILITY_NAMED_IAM
 
       - name: Upload nested stack templates to S3
         run: |
-          aws s3 cp ./Resources/vpc.yaml s3://${{ secrets.S3_BUCKET_NAME }}/vpc.yaml
-          aws s3 cp ./Resources/s3.yaml s3://${{ secrets.S3_BUCKET_NAME }}/s3.yaml
-          aws s3 cp ./Resources/ec2.yaml s3://${{ secrets.S3_BUCKET_NAME }}/ec2.yaml
-          aws s3 cp ./Resources/iam-role.yaml s3://${{ secrets.S3_BUCKET_NAME }}/iam-role.yaml
-          aws s3 cp ./Resources/lambda.yaml s3://${{ secrets.S3_BUCKET_NAME }}/lambda.yaml
-          aws s3 cp ./parameters/parameters-dev.json s3://${{ secrets.S3_BUCKET_NAME }}/parameters-dev.json
-          aws s3 cp ./parameters/parameters-prod.json s3://${{ secrets.S3_BUCKET_NAME }}/parameters-prod.json
+          aws s3 cp ./Resources/vpc.yaml s3://$S3_BUCKET_NAME/vpc.yaml
+          aws s3 cp ./Resources/s3.yaml s3://$S3_BUCKET_NAME/s3.yaml
+          aws s3 cp ./Resources/ec2.yaml s3://$S3_BUCKET_NAME/ec2.yaml
+          aws s3 cp ./Resources/iam-role.yaml s3://$S3_BUCKET_NAME/iam-role.yaml
+          aws s3 cp ./Resources/lambda.yaml s3://$S3_BUCKET_NAME/lambda.yaml
+          aws s3 cp ./parameters/parameters-dev.json s3://$S3_BUCKET_NAME/parameters-dev.json
+          aws s3 cp ./parameters/parameters-prod.json s3://$S3_BUCKET_NAME/parameters-prod.json
 
       - name: Create Lambda zip
         run: |
@@ -64,34 +70,34 @@ jobs:
 
       - name: Upload Lambda Code to S3
         run: |
-          aws s3 cp lambda-code.zip s3://${{ secrets.LAMBDA_CODE_BUCKET }}/lambda-code.zip
+          aws s3 cp lambda-code.zip s3://$S3_BUCKET_NAME/lambda-code.zip
 
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
         run: |
           aws cloudformation deploy \
             --template-file ./Resources/main.yaml \
-            --stack-name ${{ secrets.MAIN_STACK_NAME }} \
+            --stack-name your-main-stack-name \
             --parameter-overrides \
-              VPCName=${{ secrets.VPC_NAME }} \
-              LambdaFunctionName1=${{ secrets.LAMBDA_FUNCTION_NAME_1 }} \
-              LambdaFunctionName2=${{ secrets.LAMBDA_FUNCTION_NAME_2 }} \
-              LambdaFunctionName3=${{ secrets.LAMBDA_FUNCTION_NAME_3 }} \
-              LambdaCodeBucket1=${{ secrets.LAMBDA_CODE_BUCKET_1 }} \
-              LambdaCodeBucket2=${{ secrets.LAMBDA_CODE_BUCKET_2 }} \
-              LambdaCodeBucket3=${{ secrets.LAMBDA_CODE_BUCKET_3 }} \
-              LambdaCodeKey=${{ secrets.LAMBDA_CODE_KEY }} \
-              EC2InstanceName=${{ secrets.EC2_INSTANCE_NAME }} \
-              S3BucketNameCreate=${{ secrets.S3_BUCKET_NAME_CREATE }} \
-              Environment=${{ secrets.ENVIRONMENT }} \
-              AccessControl=${{ secrets.ACCESS_CONTROL }} \
-              VersioningStatus=${{ secrets.VERSIONING_STATUS }} \
+              VPCName=$VPC_NAME \
+              LambdaFunctionName1=$LAMBDA_FUNCTION_NAME_1 \
+              LambdaFunctionName2=$LAMBDA_FUNCTION_NAME_2 \
+              LambdaFunctionName3=$LAMBDA_FUNCTION_NAME_3 \
+              LambdaCodeBucket1=$S3_BUCKET_NAME \
+              LambdaCodeBucket2=$S3_BUCKET_NAME \
+              LambdaCodeBucket3=$S3_BUCKET_NAME \
+              LambdaCodeKey=lambda-code.zip \
+              EC2InstanceName=your-ec2-instance-name \
+              S3BucketNameCreate=$S3_BUCKET_NAME \
+              Environment=Dev \
+              AccessControl=Private \
+              VersioningStatus=Enabled \
             --capabilities CAPABILITY_NAMED_IAM
 
       - name: Get CloudFormation Outputs
         id: get_outputs
         run: |
-          outputs=$(aws cloudformation describe-stacks --stack-name ${{ secrets.MAIN_STACK_NAME }} --query "Stacks[0].Outputs")
+          outputs=$(aws cloudformation describe-stacks --stack-name your-main-stack-name --query "Stacks[0].Outputs")
           echo "outputs=$outputs" >> $GITHUB_ENV
           VPC_ID=$(echo $outputs | jq -r '.[] | select(.OutputKey=="VPCId") | .OutputValue')
           INSTANCE_ID=$(echo $outputs | jq -r '.[] | select(.OutputKey=="InstanceId") | .OutputValue')
