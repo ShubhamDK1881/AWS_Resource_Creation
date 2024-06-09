@@ -8,7 +8,7 @@
   "LambdaCodeBucket3": "prod-demo-s3-bucket-lambda-3",
   "LambdaCodeKey": "lambda-code.zip",
   "EC2InstanceName": "prod-demo-ec2-instance",
-  "S3BucketNameCreate": "prod-demo-s3-bucket-test-project-11",
+  "S3BucketNameCreate": "my-demo-s3-bucket-test-project-11",
   "Environment": "prod",
   "S3BucketPrefix": "prod-demo-s3-bucket"
 }

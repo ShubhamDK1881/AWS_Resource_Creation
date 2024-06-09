@@ -29,7 +29,7 @@ jobs:
       - name: Check if S3 Bucket Exists
         id: check_bucket
         run: |
-          if aws s3 ls "s3://your-unique-s3-bucket-name" 2>&1 | grep -q 'NoSuchBucket'; then
+          if aws s3 ls "s3://my-demo-s3-bucket-test-project-11" 2>&1 | grep -q 'NoSuchBucket'; then
             echo "bucket_exists=false" >> $GITHUB_ENV
           else
             echo "bucket_exists=true" >> $GITHUB_ENV
@@ -38,16 +38,16 @@ jobs:
       - name: Create S3 Bucket if Not Exists
         if: env.bucket_exists == 'false'
         run: |
-          aws s3api create-bucket --bucket your-unique-s3-bucket-name --region $AWS_REGION
+          aws s3api create-bucket --bucket my-demo-s3-bucket-test-project-11 --region $AWS_REGION
 
       - name: Upload nested stack templates to S3
         run: |
-          aws s3 cp ./Resources/vpc.yaml s3://your-unique-s3-bucket-name/vpc.yaml
-          aws s3 cp ./Resources/s3.yaml s3://your-unique-s3-bucket-name/s3.yaml
-          aws s3 cp ./Resources/ec2.yaml s3://your-unique-s3-bucket-name/ec2.yaml
-          aws s3 cp ./Resources/lambda.yaml s3://your-unique-s3-bucket-name/lambda.yaml
-          aws s3 cp ./parameters/parameters-dev.json s3://your-unique-s3-bucket-name/parameters-dev.json
-          aws s3 cp ./parameters/parameters-prod.json s3://your-unique-s3-bucket-name/parameters-prod.json
+          aws s3 cp ./Resources/vpc.yaml s3://my-demo-s3-bucket-test-project-11/vpc.yaml
+          aws s3 cp ./Resources/s3.yaml s3://my-demo-s3-bucket-test-project-11/s3.yaml
+          aws s3 cp ./Resources/ec2.yaml s3://my-demo-s3-bucket-test-project-11/ec2.yaml
+          aws s3 cp ./Resources/lambda.yaml s3://my-demo-s3-bucket-test-project-11/lambda.yaml
+          aws s3 cp ./parameters/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
+          aws s3 cp ./parameters/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
 
       - name: Create Lambda zip
         run: |
@@ -59,7 +59,7 @@ jobs:
           mv lambda-function/lambda-code.zip .
 
       - name: Upload Lambda Code to S3
-        run: aws s3 cp lambda-code.zip s3://your-unique-s3-bucket-name/lambda-code.zip
+        run: aws s3 cp lambda-code.zip s3://my-demo-s3-bucket-test-project-11/lambda-code.zip
 
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
