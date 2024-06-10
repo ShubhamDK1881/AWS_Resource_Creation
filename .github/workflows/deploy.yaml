@@ -3,11 +3,7 @@ name: Deploy AWS Resources
 on:
   push:
     branches:
-<<<<<<< HEAD
       - Dev
-=======
-      - dev
->>>>>>> 7f5d9ff8c37172e66fa535c882d2d70055062ba9
 
 jobs:
   deploy:
