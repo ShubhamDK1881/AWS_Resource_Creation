@@ -3,7 +3,7 @@ name: Deploy AWS Resources
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   deploy:
