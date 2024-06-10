@@ -3,7 +3,7 @@ name: Deploy AWS Resources
 on:
   push:
     branches:
-      - Dev
+      - dev
 
 jobs:
   deploy:
@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -102,7 +102,7 @@ jobs:
         run: echo ${{ env.VPC_ID }} > vpc-id.txt
 
       - name: Upload VPC ID artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: vpc-id
           path: vpc-id.txt
@@ -111,7 +111,7 @@ jobs:
         run: echo ${{ env.INSTANCE_ID }} > ec2-instance-id.txt
 
       - name: Upload EC2 Instance ID artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: ec2-instance-id
           path: ec2-instance-id.txt
@@ -120,13 +120,13 @@ jobs:
         run: echo ${{ env.BUCKET_NAME }} > s3-bucket-name.txt
 
       - name: Upload S3 Bucket Name artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: s3-bucket-name
           path: s3-bucket-name.txt
 
       - name: Cache Node.js dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v2
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -134,7 +134,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
           node-version: '20'
 
