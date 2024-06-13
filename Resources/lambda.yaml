@@ -1,33 +1,79 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  LambdaCodeBucket:
+    Type: String
+    Description: "S3 bucket where Lambda code is stored"
+
+  LambdaCodeKey:
+    Type: String
+    Description: "S3 key where Lambda code is stored"
+
+  LambdaExecutionRoleArn:
+    Type: String
+    Description: "ARN of the IAM role that Lambda functions will use"
+
+  LambdaFunctionName1:
+    Type: String
+    Description: "The name of the first Lambda function"
+
+  LambdaFunctionName2:
+    Type: String
+    Description: "The name of the second Lambda function"
+
+  LambdaFunctionName3:
+    Type: String
+    Description: "The name of the third Lambda function"
+
 Resources:
-  LambdaFunction:
-    Type: 'AWS::Lambda::Function'
+  LambdaFunction1:
+    Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Ref LambdaFunctionName
-      Handler: 'index.handler'
-      Role: !ImportValue LambdaExecutionRoleArn
+      FunctionName: !Ref LambdaFunctionName1
+      Handler: "index.handler"
+      Role: !Ref LambdaExecutionRoleArn
       Code:
         S3Bucket: !Ref LambdaCodeBucket
         S3Key: !Ref LambdaCodeKey
-      Runtime: 'nodejs14.x'
+      Runtime: "nodejs14.x"
+
+  LambdaFunction2:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Ref LambdaFunctionName2
+      Handler: "index.handler"
+      Role: !Ref LambdaExecutionRoleArn
+      Code:
+        S3Bucket: !Ref LambdaCodeBucket
+        S3Key: !Ref LambdaCodeKey
+      Runtime: "nodejs14.x"
+
+  LambdaFunction3:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Ref LambdaFunctionName3
+      Handler: "index.handler"
+      Role: !Ref LambdaExecutionRoleArn
+      Code:
+        S3Bucket: !Ref LambdaCodeBucket
+        S3Key: !Ref LambdaCodeKey
+      Runtime: "nodejs14.x"
 
 Outputs:
-  FunctionArn:
-    Description: 'The ARN of the Lambda function'
-    Value: !GetAtt LambdaFunction.Arn
+  LambdaFunction1Arn:
+    Description: "ARN of the first Lambda function"
+    Value: !GetAtt LambdaFunction1.Arn
     Export:
-      Name: LambdaFunctionArn
+      Name: "LambdaFunction1Arn"
 
-Parameters:
-  LambdaFunctionName:
-    Type: String
-    Description: The name of the Lambda function
-    Default: demo-lambda-function
-  LambdaCodeBucket:
-    Type: String
-    Description: The name of the S3 bucket containing the Lambda function code
-    Default: demo-s3-bucket-lambda
-  LambdaCodeKey:
-    Type: String
-    Description: The key of the Lambda function code in the S3 bucket
-    Default: lambda-code.zip
+  LambdaFunction2Arn:
+    Description: "ARN of the second Lambda function"
+    Value: !GetAtt LambdaFunction2.Arn
+    Export:
+      Name: "LambdaFunction2Arn"
+
+  LambdaFunction3Arn:
+    Description: "ARN of the third Lambda function"
+    Value: !GetAtt LambdaFunction3.Arn
+    Export:
+      Name: "LambdaFunction3Arn"

@@ -8,6 +8,15 @@ Resources:
       Parameters:
         VPCName: !Ref VPCName
 
+  NestedS3Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/s3.yaml'
+      Parameters:
+        S3BucketNameCreate: !Ref S3BucketNameCreate
+        AccessControl: !Ref AccessControl
+        VersioningStatus: !Ref VersioningStatus
+
   NestedEC2Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -27,6 +36,10 @@ Resources:
       Parameters:
         LambdaCodeBucket: my-demo-s3-bucket-test-project-11
         LambdaCodeKey: lambda-code.zip
+        LambdaExecutionRoleArn: !ImportValue LambdaExecutionRoleArn
+        LambdaFunctionName1: !Ref LambdaFunctionName1
+        LambdaFunctionName2: !Ref LambdaFunctionName2
+        LambdaFunctionName3: !Ref LambdaFunctionName3
 
 Outputs:
   VPCId:
@@ -47,11 +60,6 @@ Parameters:
     Description: The name of the VPC
     Default: demo-vpc
 
-  S3BucketNameCreate:
-    Type: String
-    Description: The name of the S3 bucket
-    Default: demo-s3-bucket
-
   AccessControl:
     Type: String
     Description: The access control for the S3 bucket
@@ -60,13 +68,6 @@ Parameters:
       - Private
       - PublicRead
 
-  VersioningStatus:
-    Type: String
-    Description: The versioning status for the S3 bucket
-    Default: Enabled
-    AllowedValues:
-      - Enabled
-      - Suspended
 
   EC2InstanceName:
     Type: String
