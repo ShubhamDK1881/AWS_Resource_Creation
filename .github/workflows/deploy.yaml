@@ -63,7 +63,7 @@ jobs:
         run: |
           aws cloudformation deploy \
             --template-file ./Resources/main.yaml \
-            --stack-name your-main-stack-name \
+            --stack-name main-stack \
             --parameter-overrides \
               VPCName=dev-demo-vpc \
               LambdaFunctionName1=dev-demo-lambda-function-1 \
@@ -83,7 +83,7 @@ jobs:
       - name: Get CloudFormation Outputs
         id: get_outputs
         run: |
-          outputs=$(aws cloudformation describe-stacks --stack-name your-main-stack-name --query "Stacks[0].Outputs" --output json)
+          outputs=$(aws cloudformation describe-stacks --stack-name main-stack --query "Stacks[0].Outputs" --output json)
           echo "outputs=$(echo $outputs | jq -c .)" >> $GITHUB_ENV
 
       - name: Parse and Set Outputs
