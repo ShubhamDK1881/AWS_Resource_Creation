@@ -27,9 +27,6 @@ Resources:
       Parameters:
         LambdaCodeBucket: my-demo-s3-bucket-test-project-11
         LambdaCodeKey: lambda-code.zip
-        LambdaFunctionName1: !Ref LambdaFunctionName1
-        LambdaFunctionName2: !Ref LambdaFunctionName2
-        LambdaFunctionName3: !Ref LambdaFunctionName3
 
 Outputs:
   VPCId:
