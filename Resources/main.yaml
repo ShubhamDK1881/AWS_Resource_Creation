@@ -4,14 +4,14 @@ Resources:
   NestedVPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.${AWS_REGION}.amazonaws.com/my-demo-s3-bucket-test-project-11/vpc.yaml'
+      TemplateURL: !Sub 's3://my-demo-s3-bucket-test-project-11/vpc.yaml'
       Parameters:
         VPCName: !Ref VPCName
 
   NestedS3Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.${AWS_REGION}.amazonaws.com/my-demo-s3-bucket-test-project-11/s3.yaml'
+      TemplateURL: !Sub 's3://my-demo-s3-bucket-test-project-11/s3.yaml'
       Parameters:
         S3BucketNameCreate: !Ref S3BucketNameCreate
         AccessControl: !Ref AccessControl
@@ -20,19 +20,19 @@ Resources:
   NestedEC2Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.${AWS_REGION}.amazonaws.com/my-demo-s3-bucket-test-project-11/ec2.yaml'
+      TemplateURL: !Sub 's3://my-demo-s3-bucket-test-project-11/ec2.yaml'
       Parameters:
         EC2InstanceName: !Ref EC2InstanceName
 
   NestedIAMRoleStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.${AWS_REGION}.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml'
+      TemplateURL: !Sub 's3://my-demo-s3-bucket-test-project-11/iam-role.yaml'
 
   NestedLambdaStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.${AWS_REGION}.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
+      TemplateURL: !Sub 's3://my-demo-s3-bucket-test-project-11/lambda.yaml'
       Parameters:
         LambdaCodeBucket: my-demo-s3-bucket-test-project-11
         LambdaCodeKey: lambda-code.zip
