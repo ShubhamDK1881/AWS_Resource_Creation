@@ -8,15 +8,6 @@ Resources:
       Parameters:
         VPCName: !Ref VPCName
 
-  NestedS3Stack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/s3.yaml'
-      Parameters:
-        S3BucketNameCreate: !Ref S3BucketNameCreate
-        AccessControl: !Ref AccessControl
-        VersioningStatus: !Ref VersioningStatus
-
   NestedEC2Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
