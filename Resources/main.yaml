@@ -1,6 +1,13 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
+  # Create the IAM Role Stack first
+  NestedIAMRoleStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml'
+
+  # Create the VPC Stack
   NestedVPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -10,24 +17,22 @@ Resources:
 
   NestedEC2Stack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: NestedIAMRoleStack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/ec2.yaml'
       Parameters:
         EC2InstanceName: !Ref EC2InstanceName
 
-  NestedIAMRoleStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml'
-
   NestedLambdaStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: 
+      - NestedIAMRoleStack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
       Parameters:
         LambdaCodeBucket: my-demo-s3-bucket-test-project-11
         LambdaCodeKey: lambda-code.zip
-        LambdaExecutionRoleArn: !ImportValue LambdaExecutionRoleArn
+        LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
         LambdaFunctionName1: !Ref LambdaFunctionName1
         LambdaFunctionName2: !Ref LambdaFunctionName2
         LambdaFunctionName3: !Ref LambdaFunctionName3
@@ -50,22 +55,6 @@ Parameters:
     Type: String
     Description: The name of the VPC
     Default: demo-vpc
-
-  AccessControl:
-    Type: String
-    Description: The access control for the S3 bucket
-    Default: Private
-    AllowedValues:
-      - Private
-      - PublicRead
-
-  VersioningStatus:
-    Type: String
-    Description: The versioning status for the S3 bucket
-    Default: Enabled
-    AllowedValues:
-      - Enabled
-      - Suspended
 
   EC2InstanceName:
     Type: String
