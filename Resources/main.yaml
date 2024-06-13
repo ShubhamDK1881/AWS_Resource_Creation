@@ -1,13 +1,13 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
-  # Create the IAM Role Stack first
   NestedIAMRoleStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: 
+      - NestedVPCStack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml'
 
-  # Create the VPC Stack
   NestedVPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -17,7 +17,8 @@ Resources:
 
   NestedEC2Stack:
     Type: AWS::CloudFormation::Stack
-    DependsOn: NestedIAMRoleStack
+    DependsOn: 
+      - NestedIAMRoleStack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/ec2.yaml'
       Parameters:
@@ -27,6 +28,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     DependsOn: 
       - NestedIAMRoleStack
+      - NestedEC2Stack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
       Parameters:
