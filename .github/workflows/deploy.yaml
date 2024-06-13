@@ -3,7 +3,7 @@ name: Deploy AWS Resources
 on:
   push:
     branches:
-      - dev
+      - prod
 
 jobs:
   deploy:
@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -22,9 +22,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Verify S3 Access
-        run: aws s3 ls || echo "Access to S3 service is denied"
 
       - name: Check if S3 Bucket Exists
         id: check_bucket
@@ -66,7 +63,7 @@ jobs:
         run: |
           aws cloudformation deploy \
             --template-file ./Resources/main.yaml \
-            --stack-name your-main-stack-name \
+            --stack-name main-stack \
             --parameter-overrides \
               VPCName=dev-demo-vpc \
               LambdaFunctionName1=dev-demo-lambda-function-1 \
@@ -86,7 +83,7 @@ jobs:
       - name: Get CloudFormation Outputs
         id: get_outputs
         run: |
-          outputs=$(aws cloudformation describe-stacks --stack-name your-main-stack-name --query "Stacks[0].Outputs" --output json)
+          outputs=$(aws cloudformation describe-stacks --stack-name main-stack --query "Stacks[0].Outputs" --output json)
           echo "outputs=$(echo $outputs | jq -c .)" >> $GITHUB_ENV
 
       - name: Parse and Set Outputs
@@ -102,7 +99,7 @@ jobs:
         run: echo ${{ env.VPC_ID }} > vpc-id.txt
 
       - name: Upload VPC ID artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: vpc-id
           path: vpc-id.txt
@@ -111,7 +108,7 @@ jobs:
         run: echo ${{ env.INSTANCE_ID }} > ec2-instance-id.txt
 
       - name: Upload EC2 Instance ID artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ec2-instance-id
           path: ec2-instance-id.txt
@@ -120,13 +117,13 @@ jobs:
         run: echo ${{ env.BUCKET_NAME }} > s3-bucket-name.txt
 
       - name: Upload S3 Bucket Name artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: s3-bucket-name
           path: s3-bucket-name.txt
 
       - name: Cache Node.js dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -134,7 +131,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '20'
 
@@ -143,3 +140,4 @@ jobs:
 
       - name: Run tests
         run: npm test
+

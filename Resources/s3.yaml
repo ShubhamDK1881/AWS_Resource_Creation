@@ -25,7 +25,7 @@ Parameters:
 
   VersioningStatus:
     Type: String
-    Default: "Suspended"
+    Default: "Enabled"
     AllowedValues:
       - Enabled
       - Suspended
