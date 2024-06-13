@@ -38,12 +38,6 @@ Outputs:
     Export:
       Name: "VPCId"
 
-  BucketName:
-    Description: "The name of the S3 bucket"
-    Value: !GetAtt NestedS3Stack.Outputs.BucketName
-    Export:
-      Name: "BucketName"
-
   InstanceId:
     Description: "The ID of the EC2 instance"
     Value: !GetAtt NestedEC2Stack.Outputs.InstanceId
