@@ -30,7 +30,7 @@ jobs:
             echo "bucket_exists=false" >> $GITHUB_ENV
           else
             echo "bucket_exists=true" >> $GITHUB_ENV
-
+          fi
       - name: Create S3 Bucket if Not Exists
         if: env.bucket_exists == 'false'
         run: |
@@ -39,11 +39,6 @@ jobs:
       - name: Upload nested stack templates to S3
         run: |
           aws s3 cp ./Resources/lambda.yaml s3://my-demo-s3-bucket-test-project-11/lambda.yaml
-          aws s3 cp ./Resources/ec2.yaml s3://my-demo-s3-bucket-test-project-11/ec2.yaml
-          aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-11/iam-role.yaml
-          aws s3 cp ./Resources/s3.yaml s3://my-demo-s3-bucket-test-project-11/s3.yaml
-          aws s3 cp ./Resources/vpc.yaml s3://my-demo-s3-bucket-test-project-11/vpc.yaml
-
       - name: Create Lambda zip
         run: |
           mkdir -p lambda-function
@@ -67,12 +62,12 @@ jobs:
               LambdaFunctionName1=dev-demo-lambda-function-1 \
               LambdaFunctionName2=dev-demo-lambda-function-2 \
               LambdaFunctionName3=dev-demo-lambda-function-3 \
-              LambdaCodeBucket1=my-demo-s3-bucket-test-project-11 \
-              LambdaCodeBucket2=my-demo-s3-bucket-test-project-11 \
-              LambdaCodeBucket3=my-demo-s3-bucket-test-project-11 \
+              LambdaCodeBucket1=dev-demo-s3-bucket-lambda-1 \
+              LambdaCodeBucket2=dev-demo-s3-bucket-lambda-2 \
+              LambdaCodeBucket3=dev-demo-s3-bucket-lambda-3 \
               LambdaCodeKey=lambda-code.zip \
               EC2InstanceName=dev-demo-ec2-instance \
-              S3BucketNameCreate=my-demo-s3-bucket-test-project-11 \
+              S3BucketNameCreate=dev-demo-cloudformation-bucket \
               Environment=dev \
               AccessControl=Private \
               VersioningStatus=Enabled \
@@ -138,3 +133,4 @@ jobs:
 
       - name: Run tests
         run: npm test
+
