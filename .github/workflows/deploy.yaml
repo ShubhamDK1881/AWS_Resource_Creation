@@ -23,9 +23,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Verify S3 Access
-        run: aws s3 ls || echo "Access to S3 service is denied"
-
       - name: Check if S3 Bucket Exists
         id: check_bucket
         run: |
