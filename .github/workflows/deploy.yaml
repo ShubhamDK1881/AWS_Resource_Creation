@@ -58,6 +58,7 @@ jobs:
             --template-file ./Resources/main.yaml \
             --stack-name main-stack \
             --parameter-overrides \
+              AWSRegion=${{ secrets.AWS_REGION }} 
               VPCName=dev-demo-vpc \
               LambdaFunctionName1=dev-demo-lambda-function-1 \
               LambdaFunctionName2=dev-demo-lambda-function-2 \
