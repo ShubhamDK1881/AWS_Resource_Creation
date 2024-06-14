@@ -4,18 +4,28 @@ Resources:
   # Create the IAM Role Stack first
   NestedIAMRoleStack:
     Type: AWS::CloudFormation::Stack
-    DependsOn:
-      - NestedVPCStack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml'
 
   # Create the VPC Stack
   NestedVPCStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: NestedIAMRoleStack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/vpc.yaml'
       Parameters:
         VPCName: !Ref VPCName
+
+  # Create the S3 Stack
+  NestedS3Stack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NestedIAMRoleStack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/s3.yaml'
+      Parameters:
+        S3BucketNameCreate: !Ref S3BucketNameCreate
+        AccessControl: !Ref AccessControl
+        VersioningStatus: !Ref VersioningStatus
 
   # Create the EC2 Stack
   NestedEC2Stack:
@@ -28,27 +38,18 @@ Resources:
       Parameters:
         EC2InstanceName: !Ref EC2InstanceName
 
-  # Create the Lambda Stack
-  NestedLambdaStack:
-    Type: AWS::CloudFormation::Stack
-    DependsOn:
-      - NestedIAMRoleStack
-    Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
-      Parameters:
-        LambdaCodeBucket: my-demo-s3-bucket-test-project-11
-        LambdaCodeKey: lambda-code.zip
-        LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
-        LambdaFunctionName1: !Ref LambdaFunctionName1
-        LambdaFunctionName2: !Ref LambdaFunctionName2
-        LambdaFunctionName3: !Ref LambdaFunctionName3
-
 Outputs:
   VPCId:
     Description: "The ID of the VPC"
     Value: !GetAtt NestedVPCStack.Outputs.VPCId
     Export:
       Name: !Sub "${AWS::StackName}-VPCId"
+
+  BucketName:
+    Description: "The name of the S3 bucket"
+    Value: !GetAtt NestedS3Stack.Outputs.BucketName
+    Export:
+      Name: !Sub "${AWS::StackName}-BucketName"
 
   InstanceId:
     Description: "The ID of the EC2 instance"
@@ -61,6 +62,11 @@ Parameters:
     Type: String
     Description: The name of the VPC
     Default: demo-vpc
+
+  S3BucketNameCreate:
+    Type: String
+    Description: The name of the S3 bucket
+    Default: my-demo-s3-bucket-test-project-18
 
   AccessControl:
     Type: String
@@ -82,18 +88,3 @@ Parameters:
     Type: String
     Description: The name of the EC2 instance
     Default: demo-ec2-instance
-
-  LambdaFunctionName1:
-    Type: String
-    Description: The name of the first Lambda function
-    Default: demo-lambda-function-1
-
-  LambdaFunctionName2:
-    Type: String
-    Description: The name of the second Lambda function
-    Default: demo-lambda-function-2
-
-  LambdaFunctionName3:
-    Type: String
-    Description: The name of the third Lambda function
-    Default: demo-lambda-function-3
