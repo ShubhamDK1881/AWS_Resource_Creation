@@ -31,6 +31,8 @@ Resources:
 
   NestedLambdaStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn:
+         - "NestedIAMRoleStack"
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
       Parameters:
