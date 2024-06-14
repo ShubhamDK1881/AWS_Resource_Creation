@@ -1,5 +1,37 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
+Parameters:
+  VPCName:
+    Type: String
+    Description: The name of the VPC
+    Default: demo-vpc
+
+  S3BucketName:
+    Type: String
+    Description: The name of the S3 bucket
+    Default: my-demo-s3-bucket-test-project-18
+
+  AccessControl:
+    Type: String
+    Description: The access control for the S3 bucket
+    Default: Private
+    AllowedValues:
+      - Private
+      - PublicRead
+
+  VersioningStatus:
+    Type: String
+    Description: The versioning status for the S3 bucket
+    Default: Enabled
+    AllowedValues:
+      - Enabled
+      - Suspended
+
+  EC2InstanceName:
+    Type: String
+    Description: The name of the EC2 instance
+    Default: demo-ec2-instance
+    
 Resources:
   NestedIAMRoleStack:
     Type: AWS::CloudFormation::Stack
@@ -47,35 +79,3 @@ Outputs:
     Value: !GetAtt NestedEC2Stack.Outputs.InstanceId
     Export:
       Name: !Sub "${AWS::StackName}-InstanceId"
-
-Parameters:
-  VPCName:
-    Type: String
-    Description: The name of the VPC
-    Default: demo-vpc
-
-  S3BucketName:
-    Type: String
-    Description: The name of the S3 bucket
-    Default: my-demo-s3-bucket-test-project-18
-
-  AccessControl:
-    Type: String
-    Description: The access control for the S3 bucket
-    Default: Private
-    AllowedValues:
-      - Private
-      - PublicRead
-
-  VersioningStatus:
-    Type: String
-    Description: The versioning status for the S3 bucket
-    Default: Enabled
-    AllowedValues:
-      - Enabled
-      - Suspended
-
-  EC2InstanceName:
-    Type: String
-    Description: The name of the EC2 instance
-    Default: demo-ec2-instance

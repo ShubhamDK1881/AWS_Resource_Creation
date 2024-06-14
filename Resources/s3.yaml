@@ -1,12 +1,4 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Resources:
-  S3Bucket:
-    Type: 'AWS::S3::Bucket'
-    Properties:
-      BucketName: !Ref S3BucketName
-      AccessControl: !Ref AccessControl
-      VersioningConfiguration:
-        Status: !Ref VersioningStatus
 
 Parameters:
   S3BucketName:
@@ -28,6 +20,15 @@ Parameters:
     AllowedValues:
       - Enabled
       - Suspended
+      
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref S3BucketName
+      AccessControl: !Ref AccessControl
+      VersioningConfiguration:
+        Status: !Ref VersioningStatus
 
 Outputs:
   S3BucketName:
