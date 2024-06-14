@@ -1,17 +1,17 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
-Resources: 
-  RootRole: 
+Resources:
+  LambdaExecutionRole:
     Type: "AWS::IAM::Role"
-    Properties: 
-      AssumeRolePolicyDocument: 
+    Properties:
+      AssumeRolePolicyDocument:
         Version: "2012-10-17"
-        Statement: 
+        Statement:
           - Effect: "Allow"
-            Principal: 
-              Service: 
+            Principal:
+              Service:
                 - "lambda.amazonaws.com"
-            Action: 
+            Action:
               - "sts:AssumeRole"
       Policies:
         - PolicyName: "LambdaExecutionPolicy"
@@ -23,7 +23,7 @@ Resources:
                   - "logs:CreateLogGroup"
                   - "logs:CreateLogStream"
                   - "logs:PutLogEvents"
-                  - "s3:GetObject"  # Ensure the role can get the Lambda code from S3
+                  - "s3:GetObject"
                 Resource: "*"
 
 Outputs:
@@ -31,4 +31,4 @@ Outputs:
     Description: "ARN of the Lambda execution role"
     Value: !GetAtt LambdaExecutionRole.Arn
     Export:
-      Name: "LambdaExecutionRoleArn"
+      Name: !Sub "${AWS::StackName}-LambdaExecutionRoleArn"
