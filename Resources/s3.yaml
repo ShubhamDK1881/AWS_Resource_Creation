@@ -1,4 +1,26 @@
 AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Description: "The name of the S3 bucket."
+  AccessControl:
+    Type: String
+    Description: "The access control settings for the S3 bucket."
+    Default: "Private"
+    AllowedValues:
+      - Private
+      - PublicRead
+      - PublicReadWrite
+      - AuthenticatedRead
+  VersioningStatus:
+    Type: String
+    Description: "The versioning status for the S3 bucket."
+    Default: "Enabled"
+    AllowedValues:
+      - Enabled
+      - Suspended
+      
 Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket'
@@ -8,30 +30,9 @@ Resources:
       VersioningConfiguration:
         Status: !Ref VersioningStatus
 
-Parameters:
-  S3BucketName:
-    Type: String
-    Description: "The name of the S3 bucket."
-
-  AccessControl:
-    Type: String
-    Default: "Private"
-    AllowedValues:
-      - Private
-      - PublicRead
-      - PublicReadWrite
-      - AuthenticatedRead
-    Description: "The access control for the S3 bucket."
-
-  VersioningStatus:
-    Type: String
-    Default: "Enabled"
-    AllowedValues:
-      - Enabled
-      - Suspended
-    Description: "The versioning status for the S3 bucket."
-
 Outputs:
-  BucketName:
+  S3BucketName:
     Description: "The name of the S3 bucket."
     Value: !Ref S3BucketName
+    Export:
+      Name: !Sub "${AWS::StackName}-BucketName"
