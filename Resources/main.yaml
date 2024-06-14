@@ -1,13 +1,11 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
-  # Create the IAM Role Stack first
   NestedIAMRoleStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml'
 
-  # Create the VPC Stack
   NestedVPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -15,21 +13,17 @@ Resources:
       Parameters:
         VPCName: !Ref VPCName
 
-  # Create the S3 Stack
   NestedS3Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/s3.yaml'
       Parameters:
-        S3BucketNameCreate: !Ref S3BucketName
+        S3BucketName: !Ref S3BucketName
         AccessControl: !Ref AccessControl
         VersioningStatus: !Ref VersioningStatus
 
   NestedEC2Stack:
     Type: AWS::CloudFormation::Stack
-    DependsOn:
-      - NestedIAMRoleStack
-      - NestedVPCStack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/ec2.yaml'
       Parameters:
@@ -60,7 +54,7 @@ Parameters:
     Description: The name of the VPC
     Default: demo-vpc
 
-  S3BucketNameCreate:
+  S3BucketName:
     Type: String
     Description: The name of the S3 bucket
     Default: my-demo-s3-bucket-test-project-18
