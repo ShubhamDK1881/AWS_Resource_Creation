@@ -29,6 +29,18 @@ Resources:
       Parameters:
         EC2InstanceName: !Ref EC2InstanceName
 
+  NestedLambdaStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
+      Parameters:
+        LambdaCodeBucket: !Ref LambdaCodeBucket
+        LambdaCodeKey: !Ref LambdaCodeKey
+        LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
+        LambdaFunctionName1: !Ref LambdaFunctionName1
+        LambdaFunctionName2: !Ref LambdaFunctionName2
+        LambdaFunctionName3: !Ref LambdaFunctionName3
+
 Outputs:
   VPCId:
     Description: "The ID of the VPC"
@@ -47,6 +59,30 @@ Outputs:
     Value: !GetAtt NestedEC2Stack.Outputs.InstanceId
     Export:
       Name: !Sub "${AWS::StackName}-InstanceId"
+
+  LambdaExecutionRoleArn:
+    Description: "ARN of the Lambda execution role"
+    Value: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
+    Export:
+      Name: !Sub "${AWS::StackName}-LambdaExecutionRoleArn"
+
+  LambdaFunction1Arn:
+    Description: "ARN of the first Lambda function"
+    Value: !GetAtt NestedLambdaStack.Outputs.LambdaFunction1Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-LambdaFunction1Arn"
+
+  LambdaFunction2Arn:
+    Description: "ARN of the second Lambda function"
+    Value: !GetAtt NestedLambdaStack.Outputs.LambdaFunction2Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-LambdaFunction2Arn"
+
+  LambdaFunction3Arn:
+    Description: "ARN of the third Lambda function"
+    Value: !GetAtt NestedLambdaStack.Outputs.LambdaFunction3Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-LambdaFunction3Arn"
 
 Parameters:
   VPCName:
@@ -79,3 +115,28 @@ Parameters:
     Type: String
     Description: The name of the EC2 instance
     Default: demo-ec2-instance
+
+  LambdaCodeBucket:
+    Type: String
+    Description: "S3 bucket where Lambda code is stored"
+    Default: my-demo-s3-bucket-code
+
+  LambdaCodeKey:
+    Type: String
+    Description: "S3 key where Lambda code is stored"
+    Default: lambda-code.zip
+
+  LambdaFunctionName1:
+    Type: String
+    Description: The name of the first Lambda function
+    Default: demo-lambda-function-1
+
+  LambdaFunctionName2:
+    Type: String
+    Description: The name of the second Lambda function
+    Default: demo-lambda-function-2
+
+  LambdaFunctionName3:
+    Type: String
+    Description: The name of the third Lambda function
+    Default: demo-lambda-function-3
