@@ -35,7 +35,7 @@ Resources:
       Code:
         S3Bucket: !Ref LambdaCodeBucket
         S3Key: !Ref LambdaCodeKey
-      Runtime: "nodejs14.x"
+      Runtime: "nodejs20.x"
 
   LambdaFunction2:
     Type: "AWS::Lambda::Function"
@@ -46,7 +46,7 @@ Resources:
       Code:
         S3Bucket: !Ref LambdaCodeBucket
         S3Key: !Ref LambdaCodeKey
-      Runtime: "nodejs14.x"
+      Runtime: "nodejs20.x"
 
   LambdaFunction3:
     Type: "AWS::Lambda::Function"
@@ -57,7 +57,7 @@ Resources:
       Code:
         S3Bucket: !Ref LambdaCodeBucket
         S3Key: !Ref LambdaCodeKey
-      Runtime: "nodejs14.x"
+      Runtime: "nodejs20.x"
 
 Outputs:
   LambdaFunction1Arn:

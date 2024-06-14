@@ -71,8 +71,8 @@ Outputs:
   LambdaFunction1Arn:
     Description: "ARN of the first Lambda function"
     Value: !GetAtt NestedLambdaStack.Outputs.LambdaFunction1Arn
-    Export:
-      Name: !Sub "${AWS::StackName}-LambdaFunction1Arn"
+  Export:
+    Name: !Sub "${AWS::StackName}-LambdaFunction1Arn"
 
   LambdaFunction2Arn:
     Description: "ARN of the second Lambda function"
@@ -84,7 +84,7 @@ Outputs:
     Description: "ARN of the third Lambda function"
     Value: !GetAtt NestedLambdaStack.Outputs.LambdaFunction3Arn
     Export:
-      Name: !Sub "${AWS::StackName}-LambdaFunction3Arn"
+     Name: !Sub "${AWS::StackName}-LambdaFunction3Arn"
 
 Parameters:
   VPCName:
@@ -121,7 +121,7 @@ Parameters:
   LambdaCodeBucket:
     Type: String
     Description: "S3 bucket where Lambda code is stored"
-    Default: my-demo-s3-bucket-code
+    Default: my-demo-s3-bucket-test-project-11
 
   LambdaCodeKey:
     Type: String
