@@ -38,9 +38,7 @@ Parameters:
 
   AvailabilityZones:
     Type: List<AWS::EC2::AvailabilityZone::Name>
-    Default: 
-      - 'us-east-1a'
-      - 'us-east-1b'
+    Description: A list of availability zones for the Auto Scaling group
 
 Resources:
   VPC:
@@ -203,4 +201,3 @@ Outputs:
     Value: !Ref WebServerAutoScalingGroup
     Export:
       Name: InstanceId
-
