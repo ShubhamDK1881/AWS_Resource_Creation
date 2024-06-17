@@ -15,10 +15,6 @@ Parameters:
     MinLength: '9'
     Type: String
 
-  KeyName:
-    Description: cfn-key-1
-    Type: AWS::EC2::KeyPair::KeyName
-    ConstraintDescription: cfn-key-1
 
   ImageId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
@@ -87,7 +83,7 @@ Resources:
       InstanceType: t2.micro
       SecurityGroups:
         - !Ref WebServerSecurityGroup
-      KeyName: !Ref KeyName
+      KeyName: cfn-key-1
       UserData:
         Fn::Base64: |
           #!/bin/bash
