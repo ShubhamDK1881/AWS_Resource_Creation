@@ -26,7 +26,6 @@ Resources:
       TemplateURL: s3://my-demo-s3-bucket-test-project-11/vpc.yaml
       Parameters:
         Parameter1: !GetAtt NestedVPCStack.Outputs.VPCId
-        Parameter2: !GetAtt NestedVPCStack.Outputs.Subnet
 
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
