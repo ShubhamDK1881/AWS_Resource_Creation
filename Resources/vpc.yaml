@@ -5,108 +5,15 @@ Parameters:
     Type: String
     Description: The name of the VPC
     Default: demo-vpc
-
-  VPCCIDR:
-    Default: 10.0.0.0/16
-    Type: String
-
-  PrivateSubnetCIDR:
-    Default: 10.0.2.0/24
-    Type: String
-
-  PrivateSubnetCIDR1:
-    Default: 10.0.3.0/24
-    Type: String
-
-  PublicSubnetCIDR:
-    Default: 10.0.1.0/24
-    Type: String
-
-  PublicSubnetCIDR1:
-    Default: 10.0.0.0/24
-    Type: String
-
+    
 Resources:
   VPC:
     Type: "AWS::EC2::VPC"
     Properties:
-      CidrBlock: !Ref VPCCIDR
+      CidrBlock: "10.0.0.0/16"
       Tags:
         - Key: "Name"
           Value: !Ref VPCName
-
-  PublicSubnet:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: !Ref PublicSubnetCIDR1
-      MapPublicIpOnLaunch: true
-      AvailabilityZone: us-east-1a
-      Tags:
-        - Key: Name
-          Value: Public Subnet
-
-  PublicSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: !Ref PublicSubnetCIDR
-      MapPublicIpOnLaunch: true
-      AvailabilityZone: us-east-1b
-      Tags:
-        - Key: Name
-          Value: Public Subnet
-  
-  PrivateSubnet:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: !Ref PrivateSubnetCIDR
-      AvailabilityZone: us-east-1a
-      Tags:
-        - Key: Name
-          Value: Private Subnet
-
-  PrivateSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: !Ref PrivateSubnetCIDR1
-      AvailabilityZone: us-east-1b
-      Tags:
-        - Key: Name
-          Value: Private Subnet
-
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Name
-          Value: Test IGW
-
-  AttachGateway:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      InternetGatewayId: !Ref InternetGateway
-      VpcId: !Ref VPC
-
-  PublicRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      Tags:
-        - Key: Name
-          Value: Public Route Table
-      VpcId: !Ref VPC
-
-  PublicRoute:
-    Type: AWS::EC2::Route
-    DependsOn: AttachGateway
-    Properties:
-      RouteTableId: !Ref PublicRouteTable
-      DestinationCidrBlock: "0.0.0.0/0"
-      GatewayId: !Ref InternetGateway
-      SubnetId: !Ref PublicSubnet
-
 
 Outputs:
   VPCId:
@@ -114,29 +21,3 @@ Outputs:
     Value: !Ref VPC
     Export:
       Name: "VPCId"
-
-  PrivateSubnet1:
-    Description: "The ID of the PrivateSubnet1"
-    Value: !Ref PrivateSubnet1
-    Export:
-      Name: "PrivateSubnet1"
-
-  PrivateSubnet:
-    Description: "The ID of the PrivateSubnet"
-    Value: !Ref PrivateSubnet
-    Export:
-      Name: "PrivateSubnet"
-
-  PublicSubnet1:
-    Description: "The ID of the PublicSubnet1"
-    Value: !Ref PublicSubnet1
-    Export:
-      Name: "PublicSubnet1"
-
-  PublicSubnet:
-    Description: "The ID of the PublicSubnet"
-    Value: !Ref PublicSubnet
-    Export:
-      Name: "PublicSubnet"
-
-  
