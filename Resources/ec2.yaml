@@ -28,10 +28,6 @@ Parameters:
     MinLength: '9'
     Type: String
 
-  AvailabilityZones:
-    Type: List<AWS::EC2::AvailabilityZone::Name>
-    Description: A list of availability zones for the Auto Scaling group
-
 Resources:
   VPC:
     Type: AWS::EC2::VPC
