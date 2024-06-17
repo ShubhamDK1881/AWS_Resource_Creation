@@ -16,19 +16,13 @@ Parameters:
     Type: String
 
   KeyName:
-    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Description: cfn-key-1
     Type: AWS::EC2::KeyPair::KeyName
-    ConstraintDescription: Must be the name of an existing EC2 KeyPair.
+    ConstraintDescription: cfn-key-1
 
   ImageId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
-
-  AvailabilityZones:
-    Type: String
-    AllowedValues:
-      - 'us-east-1b'
-      - 'us-east-1a'
 
 Resources:
 
@@ -121,8 +115,7 @@ Resources:
       MinSize: 1
       MaxSize: 4
       DesiredCapacity: 1
-      AvailabilityZones:
-        - !Ref AvailabilityZones
+      AvailabilityZones: us-east-1
 
 Outputs:
   InstanceId:
