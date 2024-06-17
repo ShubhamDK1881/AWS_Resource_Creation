@@ -29,6 +29,7 @@ Resources:
 
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    DependsOn: NestedVPCStack
     Properties:
       GroupDescription: Enable HTTP/HTTPS access on port 80/443
       SecurityGroupIngress:
@@ -47,6 +48,7 @@ Resources:
 
   SSHSecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    DependsOn: NestedVPCStack
     Properties:
       GroupDescription: SSH Security Group
       SecurityGroupIngress:
@@ -61,6 +63,7 @@ Resources:
 
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    DependsOn: [ALBSecurityGroup, SSHSecurityGroup]
     Properties:
       GroupDescription: Enable HTTP/HTTPS access via port 80/443 locked down to the load balancer SG + SSH access via port 22 locked down SSH SG
       SecurityGroupIngress:
@@ -83,6 +86,7 @@ Resources:
 
   WebServerLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
+    DependsOn: WebServerSecurityGroup
     Properties:
       ImageId: !Ref ImageId
       InstanceType: t2.micro
@@ -106,6 +110,7 @@ Resources:
 
   WebServerAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: WebServerLaunchConfiguration
     Properties:
       VPCZoneIdentifier:
         - !GetAtt NestedVPCStack.Outputs.PublicSubnet
