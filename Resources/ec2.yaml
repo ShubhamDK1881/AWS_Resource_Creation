@@ -28,45 +28,85 @@ Parameters:
     Type: String
 
   SSHLocation:
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: must be a valid IP CIDR Range of the form 0.0.0.0/0.
+    AllowedPattern: '(\d{1,3}\.){3}\d{1,3}/\d{1,2}'
+    ConstraintDescription: must be a valid IP CIDR Range of the form x.x.x.x/x.
     Default: 0.0.0.0/0
     Description: The IP address range that can be used to access the web server using SSH.
-    MaxLength: '4'
-    MinLength: '1'
+    MaxLength: '18'
+    MinLength: '9'
     Type: String
 
   AvailabilityZones:
-    Type: String
-    AllowedValues:
-      - 'us-east-1b'
+    Type: List<AWS::EC2::AvailabilityZone::Name>
+    Default: 
       - 'us-east-1a'
+      - 'us-east-1b'
 
 Resources:
-  
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: VPC
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnetCIDR
+      AvailabilityZone: !Select [0, !Ref AvailabilityZones]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: Public Subnet
+
+  PrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateSubnetCIDR
+      AvailabilityZone: !Select [1, !Ref AvailabilityZones]
+      Tags:
+        - Key: Name
+          Value: Private Subnet
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateSubnetCIDR1
+      AvailabilityZone: !Select [0, !Ref AvailabilityZones]
+      Tags:
+        - Key: Name
+          Value: Private Subnet 1
 
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable HTTP/HTTPS access on port 80/443
+      VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '80'
           ToPort: '80'
-          CidrIp: "0.0.0.0/0"
+          CidrIp: '0.0.0.0/0'
         - IpProtocol: tcp 
           FromPort: 443
           ToPort: 443
-          CidrIp: 0.0.0.0/0
+          CidrIp: '0.0.0.0/0'
       Tags:
         - Key: Name
           Value: ALB Security Group
-      VpcId: !Ref VPC
 
   SSHSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: SSH Security Group
+      VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -75,12 +115,12 @@ Resources:
       Tags:
         - Key: Name
           Value: SSH Security Group
-      VpcId: !Ref VPC
 
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable HTTP/HTTPS access via port 80/443 locked down to the load balancer SG + SSH access via port 22 locked down SSH SG
+      VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '80'
@@ -97,7 +137,6 @@ Resources:
       Tags:
         - Key: Name
           Value: WebServer Security Group
-      VpcId: !Ref VPC
 
   WebServerLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
@@ -132,6 +171,36 @@ Resources:
       MinSize: 1
       MaxSize: 4
       DesiredCapacity: 1
-      AvailabilityZones:
-        - !Ref AvailabilityZones
-  
+      AvailabilityZones: !Ref AvailabilityZones
+
+Outputs:
+  VPCId:
+    Description: 'VPC ID'
+    Value: !Ref VPC
+    Export:
+      Name: VPCId
+
+  PublicSubnetId:
+    Description: 'Public Subnet ID'
+    Value: !Ref PublicSubnet
+    Export:
+      Name: PublicSubnetId
+
+  PrivateSubnetId:
+    Description: 'Private Subnet ID'
+    Value: !Ref PrivateSubnet
+    Export:
+      Name: PrivateSubnetId
+
+  PrivateSubnetId1:
+    Description: 'Private Subnet 1 ID'
+    Value: !Ref PrivateSubnet1
+    Export:
+      Name: PrivateSubnetId1
+
+  InstanceId:
+    Description: 'The ID of the EC2 instance'
+    Value: !Ref WebServerAutoScalingGroup
+    Export:
+      Name: InstanceId
+
