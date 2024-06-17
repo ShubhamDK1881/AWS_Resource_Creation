@@ -126,7 +126,6 @@ Resources:
 
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
-    DependsOn: NestedVPCStack
     Properties:
       GroupDescription: Enable HTTP/HTTPS access on port 80/443
       SecurityGroupIngress:
@@ -145,7 +144,6 @@ Resources:
 
   SSHSecurityGroup:
     Type: AWS::EC2::SecurityGroup
-    DependsOn: NestedVPCStack
     Properties:
       GroupDescription: SSH Security Group
       SecurityGroupIngress:
