@@ -116,11 +116,14 @@ Resources:
       MinSize: 1
       MaxSize: 4
       DesiredCapacity: 1
-      AvailabilityZones: us-east-1
+      AvailabilityZones: 
+        - !Select [0, !GetAZs '']
+        - !Select [1, !GetAZs '']
+        - !Select [2, !GetAZs '']
 
 Outputs:
   InstanceId:
     Description: 'The ID of the EC2 instance'
-    Value: !Ref WebServerLaunchConfiguration
+    Value: !Ref WebServerAutoScalingGroup
     Export:
       Name: InstanceId
