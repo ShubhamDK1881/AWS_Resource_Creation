@@ -2,10 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Two-tier architecture with Web Server and Database
 
 Parameters:
-  KeyName:
-    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
-    Type: AWS::EC2::KeyPair::KeyName
-    ConstraintDescription: Must be the name of an existing EC2 KeyPair.
 
   ImageId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
@@ -17,10 +13,6 @@ Parameters:
 
   PrivateSubnetCIDR:
     Default: 10.0.2.0/24
-    Type: String
-
-  PrivateSubnetCIDR1:
-    Default: 10.0.3.0/24
     Type: String
 
   PublicSubnetCIDR:
@@ -56,7 +48,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: !Ref PublicSubnetCIDR
-      AvailabilityZone: !Select [0, !Ref AvailabilityZones]
+      AvailabilityZone: us-east-1a
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
@@ -67,20 +59,10 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: !Ref PrivateSubnetCIDR
-      AvailabilityZone: !Select [1, !Ref AvailabilityZones]
+      AvailabilityZone: us-east-1a
       Tags:
         - Key: Name
           Value: Private Subnet
-
-  PrivateSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: !Ref PrivateSubnetCIDR1
-      AvailabilityZone: !Select [0, !Ref AvailabilityZones]
-      Tags:
-        - Key: Name
-          Value: Private Subnet 1
 
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -143,7 +125,7 @@ Resources:
       InstanceType: t2.micro
       SecurityGroups:
         - !Ref WebServerSecurityGroup
-      KeyName: !Ref KeyName
+      KeyName: cfn-key-1
       UserData:
         Fn::Base64: |
           #!/bin/bash
@@ -169,7 +151,7 @@ Resources:
       MinSize: 1
       MaxSize: 4
       DesiredCapacity: 1
-      AvailabilityZones: !Ref AvailabilityZones
+      AvailabilityZones: us-east-1
 
 Outputs:
   VPCId:
