@@ -18,14 +18,111 @@ Parameters:
   ImageId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+  VPCName:
+    Type: String
+    Description: The name of the VPC
+    Default: demo-vpc
+
+  VPCCIDR:
+    Default: 10.0.0.0/16
+    Type: String
+
+  PrivateSubnetCIDR:
+    Default: 10.0.2.0/24
+    Type: String
+
+  PrivateSubnetCIDR1:
+    Default: 10.0.3.0/24
+    Type: String
+
+  PublicSubnetCIDR:
+    Default: 10.0.1.0/24
+    Type: String
+
+  PublicSubnetCIDR1:
+    Default: 10.0.0.0/24
+    Type: String
 
 Resources:
-  NestedVPCStack:
-    Type: AWS::CloudFormation::Stack
+  VPC:
+    Type: "AWS::EC2::VPC"
     Properties:
-      TemplateURL: s3://my-demo-s3-bucket-test-project-11/vpc.yaml
-      Parameters:
-        Parameter1: !GetAtt NestedVPCStack.Outputs.VPCId
+      CidrBlock: !Ref VPCCIDR
+      Tags:
+        - Key: "Name"
+          Value: !Ref VPCName
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnetCIDR1
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: us-east-1a
+      Tags:
+        - Key: Name
+          Value: Public Subnet
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnetCIDR
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: us-east-1b
+      Tags:
+        - Key: Name
+          Value: Public Subnet
+  
+  PrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateSubnetCIDR
+      AvailabilityZone: us-east-1a
+      Tags:
+        - Key: Name
+          Value: Private Subnet
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateSubnetCIDR1
+      AvailabilityZone: us-east-1b
+      Tags:
+        - Key: Name
+          Value: Private Subnet
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Test IGW
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Public Route Table
+      VpcId: !Ref VPC
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref InternetGateway
+      SubnetId: !Ref PublicSubnet
 
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -44,7 +141,7 @@ Resources:
       Tags:
         - Key: Name
           Value: ALB Security Group
-      VpcId: !GetAtt NestedVPCStack.Outputs.VPCId
+      VpcId: !Ref VPCCIDR
 
   SSHSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -59,7 +156,7 @@ Resources:
       Tags:
         - Key: Name
           Value: SSH Security Group
-      VpcId: !GetAtt NestedVPCStack.Outputs.VPCId
+      VpcId: !Ref VPCCIDR
 
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -82,7 +179,7 @@ Resources:
       Tags:
         - Key: Name
           Value: WebServer Security Group
-      VpcId: !GetAtt NestedVPCStack.Outputs.VPCId
+      VpcId: !Ref VPCCIDR
 
   WebServerLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
@@ -113,10 +210,10 @@ Resources:
     DependsOn: WebServerLaunchConfiguration
     Properties:
       VPCZoneIdentifier:
-        - !GetAtt NestedVPCStack.Outputs.PublicSubnet
-        - !GetAtt NestedVPCStack.Outputs.PrivateSubnet
-        - !GetAtt NestedVPCStack.Outputs.PublicSubnet1
-        - !GetAtt NestedVPCStack.Outputs.PrivateSubnet1
+        - !Ref PublicSubnet
+        - !Ref PrivateSubnet
+        - !Ref PublicSubnet1
+        - !Ref PrivateSubnet1
       LaunchConfigurationName: !Ref WebServerLaunchConfiguration
       MinSize: 1
       MaxSize: 4
