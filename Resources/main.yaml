@@ -9,7 +9,7 @@ Parameters:
   S3BucketName:
     Type: String
     Description: The name of the S3 bucket
-    Default: my-demo-s3-bucket-test-project-18
+    Default: !Sub ${S3BucketNameCreate}
 
   AccessControl:
     Type: String
@@ -30,7 +30,7 @@ Parameters:
   EC2InstanceName:
     Type: String
     Description: The name of the EC2 instance
-    Default: demo-ec2-instance
+    Default: !Sub ${EC2InstanceName}
     
   LambdaCodeBucket:
     Type: String
