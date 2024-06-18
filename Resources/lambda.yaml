@@ -33,7 +33,7 @@ Resources:
       Handler: "index.handler"
       Role: !Ref LambdaExecutionRoleArn
       Code:
-        S3Bucket: !Ref LambdaCodeBucket
+        S3Bucket: !Ref S3BucketName
         S3Key: !Ref LambdaCodeKey
       Runtime: "nodejs20.x"
 
@@ -44,7 +44,7 @@ Resources:
       Handler: "index.handler"
       Role: !Ref LambdaExecutionRoleArn
       Code:
-        S3Bucket: !Ref LambdaCodeBucket
+        S3Bucket: !Ref S3BucketName
         S3Key: !Ref LambdaCodeKey
       Runtime: "nodejs20.x"
 
@@ -55,7 +55,7 @@ Resources:
       Handler: "index.handler"
       Role: !Ref LambdaExecutionRoleArn
       Code:
-        S3Bucket: !Ref LambdaCodeBucket
+        S3Bucket: !Ref S3BucketName
         S3Key: !Ref LambdaCodeKey
       Runtime: "nodejs20.x"
 

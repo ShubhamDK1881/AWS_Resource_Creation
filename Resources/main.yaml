@@ -1,42 +1,49 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Main CloudFormation stack that includes VPC, EC2, S3, and Lambda resources.
 
 Parameters:
   VPCName:
     Type: String
-    Description: The name of the VPC
-    Default: demo-vpc
-
-  S3BucketName:
+    Description: Name for the VPC
+  LambdaFunctionName1:
     Type: String
-    Description: The name of the S3 bucket
-    Default: my-demo-s3-bucket-test-project-18
-
-  AccessControl:
+    Description: Name for the first Lambda function
+  LambdaFunctionName2:
     Type: String
-    Description: The access control for the S3 bucket
-    Default: Private
-    AllowedValues:
-      - Private
-      - PublicRead
-
-  VersioningStatus:
+    Description: Name for the second Lambda function
+  LambdaFunctionName3:
     Type: String
-    Description: The versioning status for the S3 bucket
-    Default: Enabled
-    AllowedValues:
-      - Enabled
-      - Suspended
-
+    Description: Name for the third Lambda function
+  LambdaCodeBucket1:
+    Type: String
+    Description: S3 bucket for Lambda function code
+  LambdaCodeBucket2:
+    Type: String
+    Description: S3 bucket for Lambda function code
+  LambdaCodeBucket3:
+    Type: String
+    Description: S3 bucket for Lambda function code
+  LambdaCodeKey:
+    Type: String
+    Description: S3 key for Lambda function code
   EC2InstanceName:
     Type: String
-    Description: The name of the EC2 instance
-    Default: demo-ec2-instance
-    
+    Description: Name for the EC2 instance
+  S3BucketNameCreate:
+    Type: String
+    Description: Name for the S3 bucket to create
+  Environment:
+    Type: String
+    Description: Environment (e.g., dev, prod)
+  AccessControl:
+    Type: String
+    Description: S3 bucket access control
+  VersioningStatus:
+    Type: String
+    Description: S3 bucket versioning status
+
 Resources:
-  NestedIAMRoleStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml'
 
   NestedVPCStack:
     Type: AWS::CloudFormation::Stack
@@ -45,7 +52,58 @@ Resources:
       Parameters:
         VPCName: !Ref VPCName
 
-  NestedS3Stack:
+  NestedEC2Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/ec2.yaml'
+      Parameters:
+        EC2InstanceName: !Ref EC2InstanceName
+    DependsOn: 
+      - NestedVPCStack
+
+  NestedIAMRoleStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml'
+
+  NestedLambdaFunction1Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
+      Parameters:
+        LambdaCodeBucket: !Ref LambdaCodeBucket1
+        LambdaCodeKey: !Ref LambdaCodeKey
+        LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
+        LambdaFunctionName1: !Ref LambdaFunctionName1
+    DependsOn: 
+      - NestedIAMRoleStack
+
+  NestedLambdaFunction2Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
+      Parameters:
+        LambdaCodeBucket: !Ref LambdaCodeBucket2
+        LambdaCodeKey: !Ref LambdaCodeKey
+        LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
+        LambdaFunctionName2: !Ref LambdaFunctionName2
+    DependsOn: 
+      - NestedIAMRoleStack
+
+  NestedLambdaFunction3Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
+      Parameters:
+        LambdaCodeBucket: !Ref LambdaCodeBucket3
+        LambdaCodeKey: !Ref LambdaCodeKey
+        LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
+        LambdaFunctionName3: !Ref LambdaFunctionName3
+    DependsOn: 
+      - NestedIAMRoleStack
+      - NestedS3BucketName
+
+  NestedS3BucketName:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/s3.yaml'
@@ -54,28 +112,27 @@ Resources:
         AccessControl: !Ref AccessControl
         VersioningStatus: !Ref VersioningStatus
 
-  NestedEC2Stack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/ec2.yaml'
-      Parameters:
-        EC2InstanceName: !Ref EC2InstanceName
-
 Outputs:
   VPCId:
-    Description: "The ID of the VPC"
+    Description: "VPC ID"
     Value: !GetAtt NestedVPCStack.Outputs.VPCId
-    Export:
-      Name: !Sub "${AWS::StackName}-VPCId"
 
-  BucketName:
-    Description: "The name of the S3 bucket"
-    Value: !GetAtt NestedS3Stack.Outputs.BucketName
-    Export:
-      Name: !Sub "${AWS::StackName}-BucketName"
+  S3BucketName:
+    Description: "S3BucketName"
+    Value: !GetAtt NestedVPCStack.Outputs.S3BucketName
 
-  InstanceId:
-    Description: "The ID of the EC2 instance"
-    Value: !GetAtt NestedEC2Stack.Outputs.InstanceId
-    Export:
-      Name: !Sub "${AWS::StackName}-InstanceId"
+  EC2InstanceId:
+    Description: "EC2 Instance ID"
+    Value: !GetAtt NestedEC2Stack.Outputs.EC2InstanceId
+
+  LambdaFunctionArn1:
+    Description: "Lambda Function ARN 1"
+    Value: !GetAtt NestedLambdaFunction1Stack.Outputs.LambdaFunctionArn
+
+  LambdaFunctionArn2:
+    Description: "Lambda Function ARN 2"
+    Value: !GetAtt NestedLambdaFunction2Stack.Outputs.LambdaFunctionArn
+
+  LambdaFunctionArn3:
+    Description: "Lambda Function ARN 3"
+    Value: !GetAtt NestedLambdaFunction3Stack.Outputs.LambdaFunctionArn
