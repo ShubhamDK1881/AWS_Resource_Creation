@@ -34,7 +34,7 @@ Resources:
       Role: !Ref LambdaExecutionRoleArn
       Code:
         S3Bucket: !Ref LambdaCodeBucket
-        S3Key: !Ref LambdaCodeKey
+        S3Key: !Ref LAMBDA_CODE_KEY
       Runtime: "nodejs20.x"
 
   LambdaFunction2:
@@ -45,7 +45,7 @@ Resources:
       Role: !Ref LambdaExecutionRoleArn
       Code:
         S3Bucket: !Ref LambdaCodeBucket
-        S3Key: !Ref LambdaCodeKey
+        S3Key: !Ref LAMBDA_CODE_KEY
       Runtime: "nodejs20.x"
 
   LambdaFunction3:
@@ -56,7 +56,7 @@ Resources:
       Role: !Ref LambdaExecutionRoleArn
       Code:
         S3Bucket: !Ref LambdaCodeBucket
-        S3Key: !Ref LambdaCodeKey
+        S3Key: !Ref LAMBDA_CODE_KEY
       Runtime: "nodejs20.x"
 
 Outputs:
