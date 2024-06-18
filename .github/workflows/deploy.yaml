@@ -57,9 +57,9 @@ jobs:
         run: |
           aws s3 cp lambda-code.zip s3://my-demo-s3-bucket-test-project-11/lambda-code.zip
 
-          - name: Deploy Main CloudFormation Stack
-          id: deploy_stack
-          run: |
+      - name: Deploy Main CloudFormation Stack
+        id: deploy_stack
+        run: |
             aws cloudformation deploy \
               --template-file ./Resources/main.yaml \
               --stack-name main-stack \
@@ -78,6 +78,21 @@ jobs:
                 AccessControl=Private \
                 VersioningStatus=Enabled \
               --capabilities CAPABILITY_NAMED_IAM
+      - name: Convert Parameters for CloudFormation
+        id: convert_parameters
+        run: |
+          echo "::set-output name=parameters::[
+            {\"ParameterKey\":\"VPCName\",\"ParameterValue\":\"${{ secrets.VPC_NAME }}\"},
+            {\"ParameterKey\":\"LambdaFunctionName1\",\"ParameterValue\":\"${{ secrets.LAMBDA_FUNCTION_NAME_1 }}\"},
+            {\"ParameterKey\":\"LambdaFunctionName2\",\"ParameterValue\":\"${{ secrets.LAMBDA_FUNCTION_NAME_2 }}\"},
+            {\"ParameterKey\":\"LambdaFunctionName3\",\"ParameterValue\":\"${{ secrets.LAMBDA_FUNCTION_NAME_3 }}\"},
+            {\"ParameterKey\":\"LambdaCodeBucket\",\"ParameterValue\":\"${{ secrets.LAMBDA_CODE_BUCKET }}\"},
+            {\"ParameterKey\":\"LambdaCodeKey\",\"ParameterValue\":\"${{ secrets.LAMBDA_CODE_KEY }}\"},
+            {\"ParameterKey\":\"EC2InstanceName\",\"ParameterValue\":\"${{ secrets.EC2_INSTANCE_NAME }}\"},
+            {\"ParameterKey\":\"S3BucketName\",\"ParameterValue\":\"${{ secrets.S3_BUCKET_NAME_CREATE }}\"},
+            {\"ParameterKey\":\"AccessControl\",\"ParameterValue\":\"${{ secrets.ACCESS_CONTROL }}\"},
+            {\"ParameterKey\":\"VersioningStatus\",\"ParameterValue\":\"${{ secrets.VERSIONING_STATUS }}\"}
+          ]"
 
       - name: Get CloudFormation Outputs
         id: get_outputs
