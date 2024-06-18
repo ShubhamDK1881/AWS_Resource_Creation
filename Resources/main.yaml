@@ -33,6 +33,9 @@ Parameters:
   S3BucketNameCreate:
     Type: String
     Description: Name for the S3 bucket to create
+  S3BucketName:
+    Type: String
+    Description: Name for the S3 bucket to create
   Environment:
     Type: String
     Description: Environment (e.g., dev, prod)
