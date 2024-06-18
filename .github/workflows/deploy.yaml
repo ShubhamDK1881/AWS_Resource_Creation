@@ -1,5 +1,7 @@
 name: Deploy AWS Resources
 
+name: Deploy AWS Resources
+
 on:
   push:
     branches:
@@ -30,7 +32,7 @@ jobs:
             echo "bucket_exists=false" >> $GITHUB_ENV
           else
             echo "bucket_exists=true" >> $GITHUB_ENV
-          fi
+
       - name: Create S3 Bucket if Not Exists
         if: env.bucket_exists == 'false'
         run: |
@@ -42,8 +44,7 @@ jobs:
           aws s3 cp ./Resources/ec2.yaml s3://my-demo-s3-bucket-test-project-11/ec2.yaml
           aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-11/iam-role.yaml
           aws s3 cp ./Resources/lambda.yaml s3://my-demo-s3-bucket-test-project-11/lambda.yaml
-          aws s3 cp ./parameters/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
-          aws s3 cp ./parameters/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
+          aws s3 cp ./parameters/parameters.json s3://my-demo-s3-bucket-test-project-11/parameters.json
 
       - name: Create Lambda zip
         run: |
@@ -55,28 +56,15 @@ jobs:
           mv lambda-function/lambda-code.zip .
 
       - name: Upload Lambda Code to S3
-        run: aws s3 cp lambda-code.zip s3://my-demo-s3-bucket-test-project-11/lambda-code.zip
+        run: |
+          aws s3 cp lambda-code.zip s3://my-demo-s3-bucket-test-project-11/lambda-code.zip
 
-      - name: Deploy Main CloudFormation Stack
-        id: deploy_stack
+      - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
-            --template-file ./Resources/main.yaml \
-            --stack-name main-stack \
-            --parameter-overrides \
-              VPCName=dev-demo-vpc \
-              LambdaFunctionName1=dev-demo-lambda-function-1 \
-              LambdaFunctionName2=dev-demo-lambda-function-2 \
-              LambdaFunctionName3=dev-demo-lambda-function-3 \
-              LambdaCodeBucket1=dev-demo-s3-bucket-lambda-1 \
-              LambdaCodeBucket2=dev-demo-s3-bucket-lambda-2 \
-              LambdaCodeBucket3=dev-demo-s3-bucket-lambda-3 \
-              LambdaCodeKey=lambda-code.zip \
-              EC2InstanceName=dev-demo-ec2-instance \
-              S3BucketNameCreate=dev-demo-cloudformation-bucket \
-              Environment=dev \
-              AccessControl=Private \
-              VersioningStatus=Enabled \
+            --template-file main.yaml \
+            --stack-name my-stack-name \
+            --parameter-overrides file://parameters/parameters-dev.json \
             --capabilities CAPABILITY_NAMED_IAM
 
       - name: Get CloudFormation Outputs
