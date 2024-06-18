@@ -1,7 +1,5 @@
 name: Deploy AWS Resources
 
-name: Deploy AWS Resources
-
 on:
   push:
     branches:
