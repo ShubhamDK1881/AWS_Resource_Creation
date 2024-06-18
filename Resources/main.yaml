@@ -50,8 +50,6 @@ Resources:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/ec2.yaml'
       Parameters:
         EC2InstanceName: !Ref EC2InstanceName
-    DependsOn: 
-      - NestedVPCStack
 
   NestedIAMRoleStack:
     Type: AWS::CloudFormation::Stack
@@ -60,6 +58,9 @@ Resources:
 
   NestedLambdaFunctionStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: 
+      - NestedIAMRoleStack
+      - NestedS3Stack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
       Parameters:
@@ -67,11 +68,7 @@ Resources:
         LambdaCodeKey: !Ref LambdaCodeKey
         LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
         LambdaFunctionName: LambdaFunctionName1
-
-    DependsOn: 
-      - NestedIAMRoleStack
-      - NestedS3Stack
-
+    
   NestedS3Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
