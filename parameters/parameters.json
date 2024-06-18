@@ -1,4 +1,4 @@
-{
+[
     "GitHubSecrets": {
       "AWS_ACCESS_KEY_ID": "your-aws-access-key-id",
       "AWS_SECRET_ACCESS_KEY": "your-aws-secret-access-key",
@@ -51,4 +51,4 @@
       "Environment": "prod",
       "S3BucketPrefix": "prod-demo-s3-bucket"
     }
-  }
+]
