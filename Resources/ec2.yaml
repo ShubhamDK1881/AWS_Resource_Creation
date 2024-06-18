@@ -5,7 +5,7 @@ Parameters:
     Type: String
     Description: The name of the EC2 instance
     Default: demo-ec2-instance
-    
+
 Resources:
   EC2Instance:
     Type: 'AWS::EC2::Instance'
@@ -22,3 +22,9 @@ Outputs:
     Value: !Ref EC2Instance
     Export:
       Name: InstanceId
+
+  EC2InstanceName:
+    Description: 'The ID of the EC2 instance'
+    Value: !Ref EC2Instance
+    Export:
+      Name: EC2InstanceName

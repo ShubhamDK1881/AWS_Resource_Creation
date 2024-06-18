@@ -65,12 +65,12 @@ Resources:
 
   NestedEC2InstanceStack:
     Type: AWS::CloudFormation::Stack
-    DependsOn: 
-      - NestedIAMRoleStack
+
     Properties:
       TemplateURL: 
         Fn::Sub: "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/ec2.yaml"
-      
+      Parameters:
+        EC2InstanceName: !Ref EC2InstanceName
 
   NestedIAMRoleStack:
     Type: AWS::CloudFormation::Stack
