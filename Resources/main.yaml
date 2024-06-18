@@ -70,7 +70,7 @@ Resources:
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml'
 
-  NestedLambdaFunction1Stack:
+  NestedLambdaFunctionStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
@@ -79,30 +79,6 @@ Resources:
         LambdaCodeKey: !Ref LambdaCodeKey
         LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
         LambdaFunctionName1: !Ref LambdaFunctionName1
-    DependsOn: 
-      - NestedIAMRoleStack
-
-  NestedLambdaFunction2Stack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
-      Parameters:
-        LambdaCodeBucket: !Ref LambdaCodeBucket2
-        LambdaCodeKey: !Ref LambdaCodeKey
-        LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
-        LambdaFunctionName2: !Ref LambdaFunctionName2
-    DependsOn: 
-      - NestedIAMRoleStack
-
-  NestedLambdaFunction3Stack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
-      Parameters:
-        LambdaCodeBucket: !Ref LambdaCodeBucket3
-        LambdaCodeKey: !Ref LambdaCodeKey
-        LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
-        LambdaFunctionName3: !Ref LambdaFunctionName3
     DependsOn: 
       - NestedIAMRoleStack
       - NestedS3Stack
@@ -129,14 +105,6 @@ Outputs:
     Description: "EC2 Instance ID"
     Value: !GetAtt NestedEC2Stack.Outputs.EC2InstanceId
 
-  LambdaFunctionArn1:
+  LambdaFunctionArn:
     Description: "Lambda Function ARN 1"
     Value: !GetAtt NestedLambdaFunction1Stack.Outputs.LambdaFunctionArn
-
-  LambdaFunctionArn2:
-    Description: "Lambda Function ARN 2"
-    Value: !GetAtt NestedLambdaFunction2Stack.Outputs.LambdaFunctionArn
-
-  LambdaFunctionArn3:
-    Description: "Lambda Function ARN 3"
-    Value: !GetAtt NestedLambdaFunction3Stack.Outputs.LambdaFunctionArn
