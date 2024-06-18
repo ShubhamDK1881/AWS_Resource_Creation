@@ -60,7 +60,7 @@ jobs:
       - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
-            --template-file main.yaml \
+            --template-file ./Resources/main.yaml \
             --stack-name my-stack-name \
             --parameter-overrides file://parameters/parameters.json \
             --capabilities CAPABILITY_NAMED_IAM
