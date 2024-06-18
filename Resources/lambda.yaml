@@ -4,13 +4,10 @@ Parameters:
   LambdaCodeBucket:
     Type: String
     Description: "S3 bucket where Lambda code is stored"
-    Name: !Sub ${S3BucketNameCreate}
 
   LambdaCodeKey:
     Type: String
     Description: "S3 key where Lambda code is stored"
-    Name: !sub ${LambdaCodeKey}
-    
 
   LambdaExecutionRoleArn:
     Type: String
@@ -48,7 +45,7 @@ Resources:
       Role: !Ref LambdaExecutionRoleArn
       Code:
         S3Bucket: !Ref LambdaCodeBucket
-        S3Key: !Ref LAMBDA_CODE_KEY
+        S3Key: !Ref LambdaCodeKey
       Runtime: "nodejs20.x"
 
   LambdaFunction3:
@@ -59,7 +56,7 @@ Resources:
       Role: !Ref LambdaExecutionRoleArn
       Code:
         S3Bucket: !Ref LambdaCodeBucket
-        S3Key: !Ref LAMBDA_CODE_KEY
+        S3Key: !Ref LambdaCodeKey
       Runtime: "nodejs20.x"
 
 Outputs:

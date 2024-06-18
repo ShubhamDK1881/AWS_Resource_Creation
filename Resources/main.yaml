@@ -9,7 +9,7 @@ Parameters:
   S3BucketName:
     Type: String
     Description: The name of the S3 bucket
-    Default: !Sub ${S3BucketNameCreate}
+    Default: my-demo-s3-bucket-test-project-18
 
   AccessControl:
     Type: String
@@ -30,32 +30,8 @@ Parameters:
   EC2InstanceName:
     Type: String
     Description: The name of the EC2 instance
-    Default: !Sub ${EC2InstanceName}
+    Default: demo-ec2-instance
     
-  LambdaCodeBucket:
-    Type: String
-    Description: The S3 bucket where the Lambda code is stored
-
-  LambdaCodeKey:
-    Type: String
-    Description: The S3 key where the Lambda code is stored
-
-  LambdaExecutionRoleArn:
-    Type: String
-    Description: ARN of the IAM role that Lambda functions will use
-
-  LambdaFunctionName1:
-    Type: String
-    Description: The name of the first Lambda function
-
-  LambdaFunctionName2:
-    Type: String
-    Description: The name of the second Lambda function
-
-  LambdaFunctionName3:
-    Type: String
-    Description: The name of the third Lambda function
-
 Resources:
   NestedIAMRoleStack:
     Type: AWS::CloudFormation::Stack
@@ -85,72 +61,6 @@ Resources:
       Parameters:
         EC2InstanceName: !Ref EC2InstanceName
 
-  LambdaFunction1:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      FunctionName: !Ref LambdaFunctionName1
-      Handler: "index.handler"
-      Role: !Ref LambdaExecutionRoleArn
-      Code:
-        S3Bucket: !Ref LambdaCodeBucket
-        S3Key: !Ref LambdaCodeKey
-      Runtime: "nodejs20.x"
-
-  LambdaFunction2:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      FunctionName: !Ref LambdaFunctionName2
-      Handler: "index.handler"
-      Role: !Ref LambdaExecutionRoleArn
-      Code:
-        S3Bucket: !Ref LambdaCodeBucket
-        S3Key: !Ref LambdaCodeKey
-      Runtime: "nodejs20.x"
-
-  LambdaFunction3:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      FunctionName: !Ref LambdaFunctionName3
-      Handler: "index.handler"
-      Role: !Ref LambdaExecutionRoleArn
-      Code:
-        S3Bucket: !Ref LambdaCodeBucket
-        S3Key: !Ref LambdaCodeKey
-      Runtime: "nodejs20.x"
-
-  WeeklyTriggerRule:
-    Type: "AWS::Events::Rule"
-    Properties:
-      ScheduleExpression: "rate(7 days)"
-      Targets:
-        - Arn: !GetAtt LambdaFunction1.Arn
-          Id: "LambdaFunction1"
-
-  WeeklyTriggerPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      FunctionName: !Ref LambdaFunction1
-      Action: "lambda:InvokeFunction"
-      Principal: "events.amazonaws.com"
-      SourceArn: !GetAtt WeeklyTriggerRule.Arn
-
-  S3BucketNotification:
-    Type: "AWS::S3::Bucket"
-    Properties:
-      BucketName: !Ref S3BucketName
-      NotificationConfiguration:
-        LambdaConfigurations:
-          - Event: "s3:ObjectCreated:*"
-            Function: !GetAtt LambdaFunction2.Arn
-
-  S3BucketPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      FunctionName: !Ref LambdaFunction2
-      Action: "lambda:InvokeFunction"
-      Principal: "s3.amazonaws.com"
-      SourceArn: !GetAtt S3BucketNotification.Arn
-
 Outputs:
   VPCId:
     Description: "The ID of the VPC"
@@ -169,21 +79,3 @@ Outputs:
     Value: !GetAtt NestedEC2Stack.Outputs.InstanceId
     Export:
       Name: !Sub "${AWS::StackName}-InstanceId"
-
-  LambdaFunction1Arn:
-    Description: "ARN of the first Lambda function"
-    Value: !GetAtt LambdaFunction1.Arn
-    Export:
-      Name: "LambdaFunction1Arn"
-
-  LambdaFunction2Arn:
-    Description: "ARN of the second Lambda function"
-    Value: !GetAtt LambdaFunction2.Arn
-    Export:
-      Name: "LambdaFunction2Arn"
-
-  LambdaFunction3Arn:
-    Description: "ARN of the third Lambda function"
-    Value: !GetAtt LambdaFunction3.Arn
-    Export:
-      Name: "LambdaFunction3Arn"
