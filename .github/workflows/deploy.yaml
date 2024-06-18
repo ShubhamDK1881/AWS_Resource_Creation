@@ -3,7 +3,7 @@ name: Deploy AWS Resources
 on:
   push:
     branches:
-      - Dev
+      - Prod
 
 jobs:
   deploy:
@@ -30,7 +30,7 @@ jobs:
             echo "bucket_exists=false" >> $GITHUB_ENV
           else
             echo "bucket_exists=true" >> $GITHUB_ENV
-          fi
+
       - name: Create S3 Bucket if Not Exists
         if: env.bucket_exists == 'false'
         run: |
@@ -42,8 +42,8 @@ jobs:
           aws s3 cp ./Resources/ec2.yaml s3://my-demo-s3-bucket-test-project-11/ec2.yaml
           aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-11/iam-role.yaml
           aws s3 cp ./Resources/lambda.yaml s3://my-demo-s3-bucket-test-project-11/lambda.yaml
-          aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
-          aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
+          aws s3 cp ./parameters/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
+          aws s3 cp ./parameters/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
 
       - name: Create Lambda zip
         run: |
@@ -55,15 +55,7 @@ jobs:
           mv lambda-function/lambda-code.zip .
 
       - name: Upload Lambda Code to S3
-        run: |
-          aws s3 cp lambda-code.zip s3://my-demo-s3-bucket-test-project-11/lambda-code.zip
-
-      - name: Deploy IAM Role Stack
-        run: |
-          aws cloudformation deploy \
-            --template-file ./Resources/iam-role.yaml \
-            --stack-name iam-role-stack \
-            --capabilities CAPABILITY_NAMED_IAM
+        run: aws s3 cp lambda-code.zip s3://my-demo-s3-bucket-test-project-11/lambda-code.zip
 
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
@@ -76,9 +68,7 @@ jobs:
               LambdaFunctionName1=dev-demo-lambda-function-1 \
               LambdaFunctionName2=dev-demo-lambda-function-2 \
               LambdaFunctionName3=dev-demo-lambda-function-3 \
-              LambdaCodeBucket1=my-demo-s3-bucket-test-project-18 \
-              LambdaCodeBucket2=my-demo-s3-bucket-test-project-18 \
-              LambdaCodeBucket3=my-demo-s3-bucket-test-project-18 \
+              LambdaCodeBucket=dev-demo-s3-bucket-lambda \
               LambdaCodeKey=lambda-code.zip \
               EC2InstanceName=dev-demo-ec2-instance \
               S3BucketNameCreate=dev-demo-cloudformation-bucket \
@@ -86,10 +76,6 @@ jobs:
               AccessControl=Private \
               VersioningStatus=Enabled \
             --capabilities CAPABILITY_NAMED_IAM
-
-      - name: Upload Lambda Code to S3
-        run: |
-          aws s3 cp lambda-code.zip s3://my-demo-s3-bucket-test-project-18/lambda-code.zip
 
       - name: Get CloudFormation Outputs
         id: get_outputs
@@ -105,31 +91,34 @@ jobs:
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
           echo "BUCKET_NAME=$BUCKET_NAME" >> $GITHUB_ENV
-  
+
+      - name: Save VPC ID as artifact
+        run: echo ${{ env.VPC_ID }} > vpc-id.txt
+
       - name: Upload VPC ID artifact
         uses: actions/upload-artifact@v3
         with:
           name: vpc-id
           path: vpc-id.txt
-  
+
       - name: Save EC2 Instance ID as artifact
         run: echo ${{ env.INSTANCE_ID }} > ec2-instance-id.txt
-  
+
       - name: Upload EC2 Instance ID artifact
         uses: actions/upload-artifact@v3
         with:
           name: ec2-instance-id
           path: ec2-instance-id.txt
-  
+
       - name: Save S3 Bucket Name as artifact
         run: echo ${{ env.BUCKET_NAME }} > s3-bucket-name.txt
-  
+
       - name: Upload S3 Bucket Name artifact
         uses: actions/upload-artifact@v3
         with:
           name: s3-bucket-name
           path: s3-bucket-name.txt
-  
+
       - name: Cache Node.js dependencies
         uses: actions/cache@v3
         with:
@@ -137,14 +126,19 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-  
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-  
+
       - name: Install dependencies
         run: npm install
-  
+
       - name: Run tests
         run: npm test
+
+      - name: Post deployment cleanup
+        run: |
+          rm -rf lambda-function
+          rm lambda-code.zip
