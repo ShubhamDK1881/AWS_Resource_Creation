@@ -105,7 +105,7 @@ Resources:
         LambdaFunctionName3: !Ref LambdaFunctionName3
     DependsOn: 
       - NestedIAMRoleStack
-      - NestedS3BucketName
+      - NestedS3Stack
 
   NestedS3Stack:
     Type: AWS::CloudFormation::Stack
