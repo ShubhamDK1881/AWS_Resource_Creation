@@ -90,7 +90,7 @@ Resources:
       Parameters:
         LambdaCodeBucket: !Ref LambdaCodeBucket
         LambdaCodeKey: !Ref LambdaCodeKey
-        LambdaExecutionRoleArn: !GetAtt IAMRole.Outputs.LambdaExecutionRoleArn
+        LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
         LambdaFunctionName1: !Ref LambdaFunctionName1
         LambdaFunctionName2: !Ref LambdaFunctionName2
         LambdaFunctionName3: !Ref LambdaFunctionName3

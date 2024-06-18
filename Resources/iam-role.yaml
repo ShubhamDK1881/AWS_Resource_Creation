@@ -51,6 +51,6 @@ Resources:
 Outputs:
   LambdaExecutionRoleArn:
     Description: "ARN of the Lambda Execution Role"
-    Value: !GetAtt LambdaExecutionRole.Arn
+    Value: !Ref LambdaExecutionRole.Arn
     Export:
       Name: !Sub "${AWS::StackName}-LambdaExecutionRoleArn"
