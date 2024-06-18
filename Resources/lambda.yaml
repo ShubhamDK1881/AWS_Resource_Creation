@@ -13,17 +13,9 @@ Parameters:
     Type: String
     Description: "ARN of the IAM role that Lambda functions will use"
 
-  LambdaFunctionName1:
+  LambdaFunctionName:
     Type: String
     Description: "The name of the first Lambda function"
-
-  LambdaFunctionName2:
-    Type: String
-    Description: "The name of the second Lambda function"
-
-  LambdaFunctionName3:
-    Type: String
-    Description: "The name of the third Lambda function"
 
 Resources:
   LambdaFunction:
@@ -42,50 +34,9 @@ Resources:
           Properties:
             Schedule: "rate(7 days)"
 
-  LambdaFunction2:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      FunctionName: !Ref LambdaFunctionName2
-      Handler: "index.handler"
-      Role: !Ref LambdaExecutionRoleArn
-      Code:
-        S3Bucket: !Ref LambdaCodeBucket
-        S3Key: !Ref LambdaCodeKey
-      Runtime: "nodejs20.x"
-      Events:
-        S3Trigger:
-          Type: S3
-          Properties:
-            Bucket: !Ref LambdaCodeBucket
-            Events:
-              - "s3:ObjectCreated:*"
-
-  LambdaFunction3:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      FunctionName: !Ref LambdaFunctionName3
-      Handler: "index.handler"
-      Role: !Ref LambdaExecutionRoleArn
-      Code:
-        S3Bucket: !Ref LambdaCodeBucket
-        S3Key: !Ref LambdaCodeKey
-      Runtime: "nodejs20.x"
-
 Outputs:
-  LambdaFunction1Arn:
+  LambdaFunctionArn:
     Description: "ARN of the first Lambda function"
-    Value: !GetAtt LambdaFunction1.Arn
+    Value: !GetAtt LambdaFunction.Arn
     Export:
-      Name: "LambdaFunction1Arn"
-
-  LambdaFunction2Arn:
-    Description: "ARN of the second Lambda function"
-    Value: !GetAtt LambdaFunction2.Arn
-    Export:
-      Name: "LambdaFunction2Arn"
-
-  LambdaFunction3Arn:
-    Description: "ARN of the third Lambda function"
-    Value: !GetAtt LambdaFunction3.Arn
-    Export:
-      Name: "LambdaFunction3Arn"
+      Name: "LambdaFunctionArn"

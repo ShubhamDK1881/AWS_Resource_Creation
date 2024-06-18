@@ -6,17 +6,9 @@ Parameters:
     Type: String
     Description: The name of the VPC
 
-  LambdaFunctionName1:
+  LambdaFunctionName:
     Type: String
-    Description: The name of the first Lambda function
-
-  LambdaFunctionName2:
-    Type: String
-    Description: The name of the second Lambda function
-
-  LambdaFunctionName3:
-    Type: String
-    Description: The name of the third Lambda function
+    Description: The name of the first Lambda functionn
 
   LambdaCodeBucket:
     Type: String
