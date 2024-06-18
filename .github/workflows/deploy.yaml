@@ -3,7 +3,7 @@ name: Deploy AWS Resources
 on:
   push:
     branches:
-      - Dev
+      - Prod
 
 jobs:
   deploy:
@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -30,7 +30,7 @@ jobs:
             echo "bucket_exists=false" >> $GITHUB_ENV
           else
             echo "bucket_exists=true" >> $GITHUB_ENV
-
+          fi
       - name: Create S3 Bucket if Not Exists
         if: env.bucket_exists == 'false'
         run: |
@@ -62,7 +62,7 @@ jobs:
           aws cloudformation deploy \
             --template-file main.yaml \
             --stack-name my-stack-name \
-            --parameter-overrides file://parameters/parameters-dev.json \
+            --parameter-overrides file://parameters/parameters.json \
             --capabilities CAPABILITY_NAMED_IAM
 
       - name: Get CloudFormation Outputs
