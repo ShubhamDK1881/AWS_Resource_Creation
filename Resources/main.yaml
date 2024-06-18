@@ -137,3 +137,8 @@ Outputs:
     Value: !GetAtt NestedS3Stack.Outputs.LambdaFunction3Arn
     Export:
       Name: !Sub "${Environment}-S3BucketName"
+
+  IAMRole:
+    Value: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
+    Export:
+      Name: !Sub "${Environment}-IAMRole"
