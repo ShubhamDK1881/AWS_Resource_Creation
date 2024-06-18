@@ -4,12 +4,12 @@ Parameters:
   LambdaCodeBucket:
     Type: String
     Description: "S3 bucket where Lambda code is stored"
-    Default: !Sub ${S3BucketNameCreate}
+    Name: !Sub ${S3BucketNameCreate}
 
   LambdaCodeKey:
     Type: String
     Description: "S3 key where Lambda code is stored"
-    Default: !sub ${LambdaCodeKey}
+    Name: !sub ${LambdaCodeKey}
     
 
   LambdaExecutionRoleArn:
