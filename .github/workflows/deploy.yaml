@@ -95,7 +95,7 @@ jobs:
           echo "outputs=$(echo $outputs | jq -c .)" >> $GITHUB_ENV
 
       - name: Parse and Set Outputs
-       run: |
+        run: |
           VPC_ID=$(echo $outputs | jq -r '.[] | select(.OutputKey=="VPCId") | .OutputValue')
           INSTANCE_ID=$(echo $outputs | jq -r '.[] | select(.OutputKey=="InstanceId") | .OutputValue')
           BUCKET_NAME=$(echo $outputs | jq -r '.[] | select(.OutputKey=="BucketName") | .OutputValue')
