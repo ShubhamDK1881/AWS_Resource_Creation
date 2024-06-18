@@ -67,12 +67,7 @@ jobs:
             --parameter-overrides \
               VPCName=dev-demo-vpc \
               LambdaCodeBucket=my-demo-s3-bucket-test-project-18 \
-              LambdaFunctionName1=dev-demo-lambda-function-1 \
-              LambdaFunctionName2=dev-demo-lambda-function-2 \
-              LambdaFunctionName3=dev-demo-lambda-function-3 \
-              LambdaCodeBucket1=dev-demo-s3-bucket-lambda-1 \
-              LambdaCodeBucket2=dev-demo-s3-bucket-lambda-2 \
-              LambdaCodeBucket3=dev-demo-s3-bucket-lambda-3 \
+              LambdaFunctionName=dev-demo-lambda-function \
               LambdaCodeKey=lambda-code.zip \
               EC2InstanceName=dev-demo-ec2-instance \
               S3BucketNameCreate=dev-demo-cloudformation-bucket \

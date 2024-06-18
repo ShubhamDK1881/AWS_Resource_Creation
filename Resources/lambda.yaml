@@ -26,10 +26,10 @@ Parameters:
     Description: "The name of the third Lambda function"
 
 Resources:
-  LambdaFunction1:
+  LambdaFunction:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Ref LambdaFunctionName1
+      FunctionName: !Ref LambdaFunctionName
       Handler: "index.handler"
       Role: !Ref LambdaExecutionRoleArn
       Code:

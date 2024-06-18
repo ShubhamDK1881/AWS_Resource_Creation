@@ -1,11 +1,7 @@
 {
   "VPCName": "prod-demo-vpc",
-  "LambdaFunctionName1": "prod-demo-lambda-function-1",
-  "LambdaFunctionName2": "prod-demo-lambda-function-2",
-  "LambdaFunctionName3": "prod-demo-lambda-function-3",
-  "LambdaCodeBucket1": "my-demo-s3-bucket-test-project-18",
-  "LambdaCodeBucket2": "my-demo-s3-bucket-test-project-18",
-  "LambdaCodeBucket3": "my-demo-s3-bucket-test-project-18",
+  "LambdaFunctionName": "dev-demo-lambda-function",
+  "LambdaCodeBucket": "my-demo-s3-bucket-test-project-18",
   "LambdaCodeKey": "lambda-code.zip",
   "EC2InstanceName": "prod-demo-ec2-instance",
   "S3BucketNameCreate": "my-demo-s3-bucket-test-project-11",
