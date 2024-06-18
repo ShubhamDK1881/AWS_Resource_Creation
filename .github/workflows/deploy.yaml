@@ -78,7 +78,6 @@ jobs:
                 AccessControl=Private \
                 VersioningStatus=Enabled \
               --capabilities CAPABILITY_NAMED_IAM
-  
 
       - name: Get CloudFormation Outputs
         id: get_outputs
