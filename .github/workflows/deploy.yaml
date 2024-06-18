@@ -57,13 +57,28 @@ jobs:
         run: |
           aws s3 cp lambda-code.zip s3://my-demo-s3-bucket-test-project-11/lambda-code.zip
 
-      - name: Deploy CloudFormation stack
-        run: |
-          aws cloudformation deploy \
-            --template-file ./Resources/main.yaml \
-            --stack-name ${{ secrets.MAIN_STACK_NAME }} \
-            --parameter-overrides ${{ env.parameters }} \
-            --capabilities CAPABILITY_NAMED_IAM
+          - name: Deploy Main CloudFormation Stack
+          id: deploy_stack
+          run: |
+            aws cloudformation deploy \
+              --template-file ./Resources/main.yaml \
+              --stack-name main-stack \
+              --parameter-overrides \
+                VPCName=dev-demo-vpc \
+                LambdaFunctionName1=dev-demo-lambda-function-1 \
+                LambdaFunctionName2=dev-demo-lambda-function-2 \
+                LambdaFunctionName3=dev-demo-lambda-function-3 \
+                LambdaCodeBucket1=dev-demo-s3-bucket-lambda-1 \
+                LambdaCodeBucket2=dev-demo-s3-bucket-lambda-2 \
+                LambdaCodeBucket3=dev-demo-s3-bucket-lambda-3 \
+                LambdaCodeKey=lambda-code.zip \
+                EC2InstanceName=dev-demo-ec2-instance \
+                S3BucketNameCreate=dev-demo-cloudformation-bucket \
+                Environment=dev \
+                AccessControl=Private \
+                VersioningStatus=Enabled \
+              --capabilities CAPABILITY_NAMED_IAM
+  
 
       - name: Get CloudFormation Outputs
         id: get_outputs
