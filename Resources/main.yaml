@@ -56,26 +56,30 @@ Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/vpc.yaml"
+      TemplateURL: 
+        Fn::Sub: "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/vpc.yaml"
       Parameters:
         VPCName: !Ref VPCName
 
   EC2Instance:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/ec2.yaml"
+      TemplateURL: 
+        Fn::Sub: "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/ec2.yaml"
       Parameters:
         InstanceName: !Ref EC2InstanceName
 
   IAMRole:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml"
+      TemplateURL: 
+        Fn::Sub: "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml"
 
   LambdaFunctions:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml"
+      TemplateURL: 
+        Fn::Sub: "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml"
       Parameters:
         LambdaCodeBucket: !Ref LambdaCodeBucket
         LambdaCodeKey: !Ref LambdaCodeKey
@@ -84,16 +88,15 @@ Resources:
         LambdaFunctionName2: !Ref LambdaFunctionName2
         LambdaFunctionName3: !Ref LambdaFunctionName3
 
-  S3Bucket:
-    Type: AWS::S3::Bucket
+  NestedS3Stack:
+    Type: AWS::CloudFormation::Stack
     Properties:
-      BucketName: !Ref S3BucketNameCreate
-      AccessControl: !Ref AccessControl
-      VersioningConfiguration:
-        Status: !Ref VersioningStatus
-      Tags:
-        - Key: Environment
-          Value: !Ref Environment
+      TemplateURL: 
+        Fn::Sub: 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/s3.yaml'
+      Parameters:
+        S3BucketName: !Ref S3BucketName
+        AccessControl: !Ref AccessControl
+        VersioningStatus: !Ref VersioningStatus
 
 Outputs:
   VPCId:
