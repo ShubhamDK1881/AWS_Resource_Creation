@@ -94,7 +94,7 @@ Resources:
       TemplateURL: 
         Fn::Sub: 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/s3.yaml'
       Parameters:
-        S3BucketName: !Ref S3BucketName
+        S3BucketName: !Ref S3BucketNameCreate
         AccessControl: !Ref AccessControl
         VersioningStatus: !Ref VersioningStatus
 
