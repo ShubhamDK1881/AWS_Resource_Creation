@@ -36,6 +36,7 @@ Parameters:
   S3BucketName:
     Type: String
     Description: Name for the S3 bucket to create
+    Default: my-demo-s3-bucket-test-project-18
   Environment:
     Type: String
     Description: Environment (e.g., dev, prod)
@@ -106,7 +107,7 @@ Resources:
       - NestedIAMRoleStack
       - NestedS3BucketName
 
-  NestedS3BucketName:
+  NestedS3Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/s3.yaml'
