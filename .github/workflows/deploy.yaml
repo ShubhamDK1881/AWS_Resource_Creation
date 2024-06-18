@@ -3,7 +3,7 @@ name: Deploy AWS Resources
 on:
   push:
     branches:
-      - Dev
+      - Prod
 
 jobs:
   deploy:
@@ -42,7 +42,8 @@ jobs:
           aws s3 cp ./Resources/ec2.yaml s3://my-demo-s3-bucket-test-project-11/ec2.yaml
           aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-11/iam-role.yaml
           aws s3 cp ./Resources/lambda.yaml s3://my-demo-s3-bucket-test-project-11/lambda.yaml
-          aws s3 cp ./parameters/parameters.json s3://my-demo-s3-bucket-test-project-11/parameters.json
+          aws s3 cp ./parameters/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
+          aws s3 cp ./parameters/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
 
       - name: Create Lambda zip
         run: |
