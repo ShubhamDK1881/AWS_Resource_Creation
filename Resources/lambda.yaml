@@ -61,6 +61,7 @@ Resources:
 
 Outputs:
   LambdaFunction1Arn:
+    Type: AWS::Serverless::Application
     Description: "ARN of the first Lambda function"
     Value: !GetAtt LambdaFunction1.Arn
     Export:
