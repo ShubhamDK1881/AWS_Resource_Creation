@@ -61,8 +61,8 @@ jobs:
         run: |
           aws cloudformation deploy \
             --template-file ./Resources/main.yaml \
-            --stack-name my-stack-name \
-            --parameter-overrides file://parameters/parameters.json \
+            --stack-name ${{ secrets.MAIN_STACK_NAME }} \
+            --parameter-overrides ${{ env.parameters }} \
             --capabilities CAPABILITY_NAMED_IAM
 
       - name: Get CloudFormation Outputs
