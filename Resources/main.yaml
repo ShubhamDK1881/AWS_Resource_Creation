@@ -53,30 +53,37 @@ Parameters:
     AllowedValues: [Enabled, Suspended]
 
 Resources:
-  VPC:
+  NestedVPCStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: 
+      - NestedIAMRoleStack
     Properties:
       TemplateURL: 
         Fn::Sub: "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/vpc.yaml"
       Parameters:
         VPCName: !Ref VPCName
 
-  EC2Instance:
+  NestedEC2InstanceStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: 
+      - NestedIAMRoleStack
     Properties:
       TemplateURL: 
         Fn::Sub: "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/ec2.yaml"
       Parameters:
         InstanceName: !Ref EC2InstanceName
 
-  IAMRole:
+  NestedIAMRoleStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: 
         Fn::Sub: "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml"
 
-  LambdaFunctions:
+  NestedLambdaFunctionsStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: 
+      - NestedIAMRoleStack
+      - NestedS3Stack
     Properties:
       TemplateURL: 
         Fn::Sub: "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml"
@@ -90,6 +97,8 @@ Resources:
 
   NestedS3Stack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: 
+      - NestedIAMRoleStack
     Properties:
       TemplateURL: 
         Fn::Sub: 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/s3.yaml'

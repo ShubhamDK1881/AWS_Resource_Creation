@@ -66,6 +66,7 @@ jobs:
             --stack-name main-stack \
             --parameter-overrides \
               VPCName=dev-demo-vpc \
+              LambdaCodeBucket=my-demo-s3-bucket-test-project-18 \
               LambdaFunctionName1=dev-demo-lambda-function-1 \
               LambdaFunctionName2=dev-demo-lambda-function-2 \
               LambdaFunctionName3=dev-demo-lambda-function-3 \
