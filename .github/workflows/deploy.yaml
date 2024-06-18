@@ -30,7 +30,7 @@ jobs:
             echo "bucket_exists=false" >> $GITHUB_ENV
           else
             echo "bucket_exists=true" >> $GITHUB_ENV
-
+          fi
       - name: Create S3 Bucket if Not Exists
         if: env.bucket_exists == 'false'
         run: |
