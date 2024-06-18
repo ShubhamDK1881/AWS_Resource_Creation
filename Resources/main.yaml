@@ -109,31 +109,31 @@ Resources:
 
 Outputs:
   VPCId:
-    Value: !GetAtt VPC.Outputs.VPCId
+    Value: !GetAtt NestedVPCStack.Outputs.VPCId
     Export:
       Name: !Sub "${Environment}-VPCId"
 
   InstanceId:
-    Value: !GetAtt EC2Instance.Outputs.InstanceId
+    Value: !GetAtt NestedEC2InstanceStack.Outputs.InstanceId
     Export:
       Name: !Sub "${Environment}-InstanceId"
 
   LambdaFunction1Arn:
-    Value: !GetAtt LambdaFunctions.Outputs.LambdaFunction1Arn
+    Value: !GetAtt NestedLambdaFunctionsStack.Outputs.LambdaFunction1Arn
     Export:
       Name: !Sub "${Environment}-LambdaFunction1Arn"
 
   LambdaFunction2Arn:
-    Value: !GetAtt LambdaFunctions.Outputs.LambdaFunction2Arn
+    Value: !GetAtt NestedLambdaFunctionsStack.Outputs.LambdaFunction2Arn
     Export:
       Name: !Sub "${Environment}-LambdaFunction2Arn"
 
   LambdaFunction3Arn:
-    Value: !GetAtt LambdaFunctions.Outputs.LambdaFunction3Arn
+    Value: !GetAtt NestedLambdaFunctionsStack.Outputs.LambdaFunction3Arn
     Export:
       Name: !Sub "${Environment}-LambdaFunction3Arn"
 
   S3BucketName:
-    Value: !Ref S3Bucket
+    Value: !GetAtt NestedS3Stack.Outputs.LambdaFunction3Arn
     Export:
       Name: !Sub "${Environment}-S3BucketName"
