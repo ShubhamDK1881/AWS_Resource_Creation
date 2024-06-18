@@ -9,19 +9,7 @@ Parameters:
   LambdaFunctionName1:
     Type: String
     Description: Name for the first Lambda function
-  LambdaFunctionName2:
-    Type: String
-    Description: Name for the second Lambda function
-  LambdaFunctionName3:
-    Type: String
-    Description: Name for the third Lambda function
-  LambdaCodeBucket1:
-    Type: String
-    Description: S3 bucket for Lambda function code
-  LambdaCodeBucket2:
-    Type: String
-    Description: S3 bucket for Lambda function code
-  LambdaCodeBucket3:
+  LambdaCodeBucket:
     Type: String
     Description: S3 bucket for Lambda function code
   LambdaCodeKey:
@@ -75,10 +63,11 @@ Resources:
     Properties:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml'
       Parameters:
-        LambdaCodeBucket: !Ref LambdaCodeBucket1
+        LambdaCodeBucket: !Ref LambdaCodeBucket
         LambdaCodeKey: !Ref LambdaCodeKey
         LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
-        LambdaFunctionName1: !Ref LambdaFunctionName1
+        LambdaFunctionName: LambdaFunctionName1
+
     DependsOn: 
       - NestedIAMRoleStack
       - NestedS3Stack
