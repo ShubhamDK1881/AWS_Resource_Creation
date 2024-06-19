@@ -42,21 +42,8 @@ jobs:
           aws s3 cp ./Resources/s3.yaml s3://my-demo-s3-bucket-test-project-11/s3.yaml
           aws s3 cp ./Resources/ec2.yaml s3://my-demo-s3-bucket-test-project-11/ec2.yaml
           aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-11/iam-role.yaml
-          aws s3 cp ./Resources/lambda.yaml s3://my-demo-s3-bucket-test-project-11/lambda.yaml
           aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
           aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
-
-      - name: Create Lambda zip
-        run: |
-          mkdir -p lambda-function
-          echo "exports.handler = async (event) => { console.log('Event:', event); return { statusCode: 200, body: JSON.stringify('Hello from Lambda!') }; };" > lambda-function/index.js
-          cd lambda-function
-          zip -r lambda-code.zip .
-          cd ..
-          mv lambda-function/lambda-code.zip .
-
-      - name: Upload Lambda Code to S3
-        run: aws s3 cp lambda-code.zip s3://my-demo-s3-bucket-test-project-11/lambda-code.zip
 
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
@@ -66,9 +53,6 @@ jobs:
             --stack-name main-stack \
             --parameter-overrides \
               VPCName=dev-demo-vpc \
-              LambdaCodeBucket=my-demo-s3-bucket-test-project-11 \
-              LambdaFunctionName=dev-demo-lambda-function \
-              LambdaCodeKey=lambda-code.zip \
               EC2InstanceName=dev-demo-ec2-instance \
               S3BucketNameCreate=dev-demo-cloudformation-bucket \
               Environment=dev \
@@ -137,7 +121,3 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Post deployment cleanup
-        run: |
-          rm -rf lambda-function
-          rm lambda-code.zip
