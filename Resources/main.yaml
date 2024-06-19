@@ -14,6 +14,10 @@ Parameters:
     Type: String
     Description: The name of the S3 bucket to be created
 
+  S3BucketName:
+    Type: String
+    Description: The name of the S3 bucket to be created
+
   Environment:
     Type: String
     Description: The environment name
@@ -68,11 +72,11 @@ Outputs:
     Export:
       Name: !Sub "${AWS::StackName}-VPCId"
 
-  BucketName:
+  S3BucketName:
     Description: "The name of the S3 bucket"
-    Value: !GetAtt NestedS3Stack.Outputs.BucketName
+    Value: !GetAtt NestedS3Stack.Outputs.S3BucketName
     Export:
-      Name: !Sub "${AWS::StackName}-BucketName"
+      Name: !Sub "${AWS::StackName}-S3BucketName"
 
   InstanceId:
     Description: "The ID of the EC2 instance"
