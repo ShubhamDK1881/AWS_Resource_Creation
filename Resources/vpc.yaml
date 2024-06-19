@@ -21,4 +21,3 @@ Outputs:
     Value: !Ref VPC
     Export:
       Name: "VPCId"
-

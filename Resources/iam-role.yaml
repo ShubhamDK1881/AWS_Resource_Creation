@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
-  LambdaExecutionRole:
+  EC2ExecutionRole:
     Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
@@ -10,11 +10,11 @@ Resources:
           - Effect: "Allow"
             Principal:
               Service:
-                - "lambda.amazonaws.com"
+                - "ec2.amazonaws.com"
             Action:
               - "sts:AssumeRole"
       Policies:
-        - PolicyName: "LambdaExecutionPolicy"
+        - PolicyName: "EC2ExecutionPolicy"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -27,8 +27,8 @@ Resources:
                 Resource: "*"
 
 Outputs:
-  LambdaExecutionRoleArn:
-    Description: "ARN of the Lambda execution role"
-    Value: !GetAtt LambdaExecutionRole.Arn
+  EC2ExecutionRoleArn:
+    Description: "ARN of the EC2 execution role"
+    Value: !GetAtt EC2ExecutionRole.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-LambdaExecutionRoleArn"
+      Name: !Sub "${AWS::StackName}-EC2ExecutionRoleArn"
