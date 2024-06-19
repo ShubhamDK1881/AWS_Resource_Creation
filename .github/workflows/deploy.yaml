@@ -51,7 +51,6 @@ jobs:
           aws cloudformation deploy \
             --template-file ./Resources/main.yaml \
             --stack-name main-stack \
-            --capabilities CAPABILITY_IAM
             --parameter-overrides \
               VPCName=dev-demo-vpc \
               EC2InstanceName=dev-demo-ec2-instance \
@@ -60,7 +59,8 @@ jobs:
               Environment=dev \
               AccessControl=Private \
               VersioningStatus=Enabled \
-            --capabilities CAPABILITY_NAMED_IAM
+            --capabilities CAPABILITY_IAM
+
 
       - name: Get CloudFormation Outputs
         id: get_outputs
