@@ -1,56 +1,34 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: >
-  IAM roles for resources.
+AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
-
-  IAMRole:
-    Type: AWS::IAM::Role
+  EC2ExecutionRole:
+    Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-          - Effect: Allow
+          - Effect: "Allow"
             Principal:
-              Service: IAMRole.amazonaws.com
-            Action: sts:AssumeRole
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
       Policies:
-        - PolicyName: IAMRole
+        - PolicyName: "EC2ExecutionPolicy"
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-              - Effect: Allow
+              - Effect: "Allow"
                 Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
-        - PolicyName: S3Access
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:GetObject
-                  - s3:PutObject
-                  - s3:DeleteObject
-                Resource: "*"
-        - PolicyName: AdditionalPermissions
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ec2:DescribeInstances
-                  - ec2:StartInstances
-                  - ec2:StopInstances
-                  - ec2:TerminateInstances
-                  - ec2:RebootInstances
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "s3:GetObject"
                 Resource: "*"
 
 Outputs:
-  IAMRole:
-    Description: "ARN of the IAM Role"
-    Value: !GetAtt IAMRole.Arn
+  EC2ExecutionRoleArn:
+    Description: "ARN of the EC2 execution role"
+    Value: !GetAtt EC2ExecutionRole.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-IAMRoleArn"
+      Name: !Sub "${AWS::StackName}-EC2ExecutionRoleArn"

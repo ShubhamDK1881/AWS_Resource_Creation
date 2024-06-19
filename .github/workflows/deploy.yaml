@@ -46,6 +46,13 @@ jobs:
           aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
 
 
+      - name: Upload nested stack templates to S3
+        run: |
+          aws s3 cp ./Resources/vpc.yaml s3://my-demo-s3-bucket-test-project-11/vpc.yaml
+          aws s3 cp ./Resources/s3.yaml s3://my-demo-s3-bucket-test-project-11/s3.yaml
+          aws s3 cp ./Resources/ec2.yaml s3://my-demo-s3-bucket-test-project-11/ec2.yaml
+          aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-11/iam-role.yaml
+ 
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
         run: |
@@ -60,13 +67,13 @@ jobs:
               AccessControl=Private \
               VersioningStatus=Enabled \
             --capabilities CAPABILITY_NAMED_IAM
-
+  
       - name: Get CloudFormation Outputs
         id: get_outputs
         run: |
           outputs=$(aws cloudformation describe-stacks --stack-name main-stack --query "Stacks[0].Outputs" --output json)
           echo "outputs=$(echo $outputs | jq -c .)" >> $GITHUB_ENV
-
+  
       - name: Parse and Set Outputs
         run: |
           VPC_ID=$(echo $outputs | jq -r '.[] | select(.OutputKey=="VPCId") | .OutputValue')
@@ -75,34 +82,34 @@ jobs:
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
           echo "BUCKET_NAME=$BUCKET_NAME" >> $GITHUB_ENV
-
+  
       - name: Save VPC ID as artifact
         run: echo ${{ env.VPC_ID }} > vpc-id.txt
-
+  
       - name: Upload VPC ID artifact
         uses: actions/upload-artifact@v3
         with:
           name: vpc-id
           path: vpc-id.txt
-
+  
       - name: Save EC2 Instance ID as artifact
         run: echo ${{ env.INSTANCE_ID }} > ec2-instance-id.txt
-
+  
       - name: Upload EC2 Instance ID artifact
         uses: actions/upload-artifact@v3
         with:
           name: ec2-instance-id
           path: ec2-instance-id.txt
-
+  
       - name: Save S3 Bucket Name as artifact
         run: echo ${{ env.BUCKET_NAME }} > s3-bucket-name.txt
-
+  
       - name: Upload S3 Bucket Name artifact
         uses: actions/upload-artifact@v3
         with:
           name: s3-bucket-name
           path: s3-bucket-name.txt
-
+  
       - name: Cache Node.js dependencies
         uses: actions/cache@v3
         with:
@@ -110,14 +117,14 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-
+  
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-
+  
       - name: Install dependencies
         run: npm install
-
+  
       - name: Run tests
         run: npm test
