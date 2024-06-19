@@ -1,8 +1,5 @@
 {
   "VPCName": "dev-demo-vpc",
-  "LambdaFunctionName": "dev-demo-lambda-function",
-  "LambdaCodeBucket": "my-demo-s3-bucket-test-project-11",
-  "LambdaCodeKey": "lambda-code.zip",
   "EC2InstanceName": "dev-demo-ec2-instance",
   "S3BucketNameCreate": "my-demo-s3-bucket-test-project-11",
   "S3BucketName": "my-demo-s3-bucket-test-project-18",

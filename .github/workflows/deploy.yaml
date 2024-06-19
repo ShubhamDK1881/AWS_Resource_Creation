@@ -54,7 +54,8 @@ jobs:
             --parameter-overrides \
               VPCName=dev-demo-vpc \
               EC2InstanceName=dev-demo-ec2-instance \
-              S3BucketNameCreate=dev-demo-cloudformation-bucket \
+              S3BucketNameCreate=my-demo-s3-bucket-test-project-11 
+              S3BucketName=my-demo-s3-bucket-test-project-18 \
               Environment=dev \
               AccessControl=Private \
               VersioningStatus=Enabled \

@@ -6,18 +6,6 @@ Parameters:
     Type: String
     Description: The name of the VPC
 
-  LambdaFunctionName:
-    Type: String
-    Description: The name of the first Lambda functionn
-
-  LambdaCodeBucket:
-    Type: String
-    Description: The S3 bucket where Lambda code is stored
-
-  LambdaCodeKey:
-    Type: String
-    Description: The S3 key where Lambda code is stored
-
   EC2InstanceName:
     Type: String
     Description: The name of the EC2 instance
@@ -70,20 +58,6 @@ Resources:
       TemplateURL: 
         Fn::Sub: "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/iam-role.yaml"
 
-  NestedLambdaFunctionsStack:
-    Type: AWS::CloudFormation::Stack
-    DependsOn: 
-      - NestedIAMRoleStack
-      - NestedS3Stack
-    Properties:
-      TemplateURL: 
-        Fn::Sub: "https://s3.${AWS::Region}.amazonaws.com/my-demo-s3-bucket-test-project-11/lambda.yaml"
-      Parameters:
-        LambdaCodeBucket: !Ref LambdaCodeBucket
-        LambdaCodeKey: !Ref LambdaCodeKey
-        LambdaExecutionRoleArn: !GetAtt NestedIAMRoleStack.Outputs.LambdaExecutionRoleArn
-        LambdaFunctionName: !Ref LambdaFunctionName
-
   NestedS3Stack:
     Type: AWS::CloudFormation::Stack
     DependsOn: 
@@ -107,13 +81,8 @@ Outputs:
     Export:
       Name: !Sub "${Environment}-InstanceId"
 
-  LambdaFunctionArn:
-    Value: !GetAtt NestedLambdaFunctionsStack.Outputs.LambdaFunction1Arn
-    Export:
-      Name: !Sub "${Environment}-LambdaFunctionArn"
-
   S3BucketName:
-    Value: !GetAtt NestedS3Stack.Outputs.LambdaFunction3Arn
+    Value: !GetAtt NestedS3Stack.Outputs.S3BucketName
     Export:
       Name: !Sub "${Environment}-S3BucketName"
 

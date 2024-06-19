@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
-  IAM roles for Lambda functions and other resources.
+  IAM roles for resources.
 
 Resources:
 
-  LambdaExecutionRole:
+  IAMRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -12,10 +12,10 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: lambda.amazonaws.com
+              Service: IAMRole.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: LambdaBasicExecution
+        - PolicyName: IAMRole
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
@@ -49,8 +49,8 @@ Resources:
                 Resource: "*"
 
 Outputs:
-  LambdaExecutionRoleArn:
-    Description: "ARN of the Lambda Execution Role"
-    Value: !GetAtt LambdaExecutionRole.Arn
+  IAMRole:
+    Description: "ARN of the IAM Role"
+    Value: !GetAtt IAMRole.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-LambdaExecutionRoleArn"
+      Name: !Sub "${AWS::StackName}-IAMRoleArn"
