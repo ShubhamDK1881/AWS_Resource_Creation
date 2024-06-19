@@ -60,8 +60,6 @@ Resources:
 
   NestedS3Stack:
     Type: AWS::CloudFormation::Stack
-    DependsOn: 
-      - NestedIAMRoleStack
     Properties:
       TemplateURL: 
         Fn::Sub: 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-11/s3.yaml'
