@@ -1,4 +1,4 @@
-name: Deploy AWS Resources
+name: Deploy AWS Resources using GitHub Actions
 
 on:
   push:
