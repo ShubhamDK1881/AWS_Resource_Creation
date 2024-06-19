@@ -3,7 +3,7 @@ name: Deploy AWS Resources
 on:
   push:
     branches:
-      - Dev
+      - Prod
 
 jobs:
   deploy:
@@ -45,6 +45,7 @@ jobs:
           aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
           aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
 
+
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
         run: |
@@ -54,13 +55,11 @@ jobs:
             --parameter-overrides \
               VPCName=dev-demo-vpc \
               EC2InstanceName=dev-demo-ec2-instance \
-              S3BucketNameCreate=my-demo-s3-bucket-test-project-11 
-              S3BucketName=my-demo-s3-bucket-test-project-18 \
+              S3BucketNameCreate=dev-demo-cloudformation-bucket \
               Environment=dev \
               AccessControl=Private \
               VersioningStatus=Enabled \
-            --capabilities CAPABILITY_IAM
-
+            --capabilities CAPABILITY_NAMED_IAM
 
       - name: Get CloudFormation Outputs
         id: get_outputs
@@ -122,4 +121,3 @@ jobs:
 
       - name: Run tests
         run: npm test
-
