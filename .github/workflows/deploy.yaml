@@ -76,7 +76,7 @@ jobs:
           aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
           aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
       
-      - name: Check if main stack is in ROLLBACK_COMPLETE state
+      - name: Check status of Previously Deployed stacks
         id: check_main_stack
         run: |
           STACK_STATUS=$(aws cloudformation describe-stacks --stack-name main-stack --query "Stacks[0].StackStatus" --output text || echo "STACK_NOT_FOUND")
@@ -136,7 +136,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: vpc-id
-          path: vpc-id.txt
+          path: ./Resources/package-lock.json
   
       - name: Save EC2 Instance ID as artifact
         run: echo ${{ env.INSTANCE_ID }} > ec2-instance-id.txt
@@ -145,7 +145,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ec2-instance-id
-          path: ec2-instance-id.txt
+          path: ./Resources/package-lock.json
   
       - name: Save S3 Bucket Name as artifact
         run: echo ${{ env.BUCKET_NAME }} > s3-bucket-name.txt
@@ -154,7 +154,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: s3-bucket-name
-          path: s3-bucket-name.txt
+          path: ./Resources/package-lock.json
   
       - name: Cache Node.js dependencies
         uses: actions/cache@v3
@@ -168,10 +168,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+        path: ./Resources/package-lock.json
   
       - name: Install dependencies
         run: npm install
-        #run: npm ci
   
       - name: Run tests
         run: npm test
