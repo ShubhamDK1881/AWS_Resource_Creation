@@ -82,12 +82,14 @@ jobs:
           echo "Delete Complete..."
         
       - name: Delete main stack if main stack is in ROLLBACK_COMPLETE state
-        if: steps.check_main_stack.outputs.stack_status == 'ROLLBACK_COMPLETE'
+        if: steps.check_main_stack.outputs.stack_status == 'ROLLBACK_COMPLETE' || 'CREATE_COMPLETE'
         run: |
           echo "Deleting main stack..."
           aws cloudformation delete-stack --stack-name main-stack
           aws cloudformation wait stack-delete-complete --stack-name main-stack
           echo "Delete Complete..."
+          
+      
         
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
