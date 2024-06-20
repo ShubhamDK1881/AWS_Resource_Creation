@@ -1,9 +1,32 @@
 name: Deploy AWS Resources using GitHub Actions
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - Dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 19.x, 20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run unit tests
+        run: npm test
 
 jobs:
   deploy:
@@ -44,14 +67,6 @@ jobs:
           aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-11/iam-role.yaml
           aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
           aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
-
-
-      - name: Upload nested stack templates to S3
-        run: |
-          aws s3 cp ./Resources/vpc.yaml s3://my-demo-s3-bucket-test-project-11/vpc.yaml
-          aws s3 cp ./Resources/s3.yaml s3://my-demo-s3-bucket-test-project-11/s3.yaml
-          aws s3 cp ./Resources/ec2.yaml s3://my-demo-s3-bucket-test-project-11/ec2.yaml
-          aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-11/iam-role.yaml
  
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
@@ -122,10 +137,11 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: ${{ matrix.node-version }}
   
       - name: Install dependencies
         run: npm install
+        #run: npm ci
   
       - name: Run tests
         run: npm test
