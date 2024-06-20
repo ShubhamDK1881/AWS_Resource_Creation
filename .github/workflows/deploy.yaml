@@ -70,15 +70,16 @@ jobs:
       - name: Check if main stack is in ROLLBACK_COMPLETE state
         id: check_main_stack
         run: |
-          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name create-main-stack --query "Stacks[0].StackStatus" --output text || echo "STACK_NOT_FOUND")
+          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name main-stack --query "Stacks[0].StackStatus" --output text || echo "STACK_NOT_FOUND")
+          echo "main Stack Status: $STACK_STATUS"
           echo "::set-output name=stack_status::$STACK_STATUS"
-        if: steps.check_main_stack.outputs.main_status == 'ROLLBACK_COMPLETE'
-        run: |
-          aws cloudformation delete-stack --stack-name create-main-stack
-          aws cloudformation wait stack-delete-complete --stack-name create-main-stack
-
-      
         
+      - name: Delete main stack if main stack is in ROLLBACK_COMPLETE state
+        if: steps.check_main_stack.outputs.stack_status == 'ROLLBACK_COMPLETE'
+        run: |
+          echo "Deleting main stack..."
+          aws cloudformation delete-stack --stack-name main-stack
+          aws cloudformation wait stack-delete-complete --stack-name main-stack
         
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
