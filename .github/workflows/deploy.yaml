@@ -72,12 +72,13 @@ jobs:
         run: |
           STACK_STATUS=$(aws cloudformation describe-stacks --stack-name create-main-stack --query "Stacks[0].StackStatus" --output text || echo "STACK_NOT_FOUND")
           echo "::set-output name=stack_status::$STACK_STATUS"
-
-      - name: Delete main stack if in ROLLBACK_COMPLETE state
         if: steps.check_main_stack.outputs.main_status == 'ROLLBACK_COMPLETE'
         run: |
           aws cloudformation delete-stack --stack-name create-main-stack
           aws cloudformation wait stack-delete-complete --stack-name create-main-stack
+
+      
+        
         
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
