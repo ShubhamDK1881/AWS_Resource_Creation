@@ -168,7 +168,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-        path: ./Resources/package-lock.json
+          path: ./Resources/package-lock.json
   
       - name: Install dependencies
         run: npm install
