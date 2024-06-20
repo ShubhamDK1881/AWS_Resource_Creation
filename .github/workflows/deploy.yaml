@@ -66,12 +66,13 @@ jobs:
           aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-11/iam-role.yaml
           aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
           aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
-          - name: Check if VPC stack is in ROLLBACK_COMPLETE state
-          id: check_vpc_stack
-          run: |
-            STACK_STATUS=$(aws cloudformation describe-stacks --stack-name create-vpc-stack --query "Stacks[0].StackStatus" --output text || echo "STACK_NOT_FOUND")
-            echo "::set-output name=stack_status::$STACK_STATUS"
-            
+      
+      - name: Check if VPC stack is in ROLLBACK_COMPLETE state
+        id: check_vpc_stack
+        run: |
+          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name create-vpc-stack --query "Stacks[0].StackStatus" --output text || echo "STACK_NOT_FOUND")
+          echo "::set-output name=stack_status::$STACK_STATUS"
+
       - name: Delete main stack if in ROLLBACK_COMPLETE state
         if: steps.check_main_stack.outputs.main_status == 'ROLLBACK_COMPLETE'
         run: |
