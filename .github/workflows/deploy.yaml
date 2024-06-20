@@ -80,6 +80,7 @@ jobs:
           echo "Deleting main stack..."
           aws cloudformation delete-stack --stack-name main-stack
           aws cloudformation wait stack-delete-complete --stack-name main-stack
+          echo "Delete Complete..."
         
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
