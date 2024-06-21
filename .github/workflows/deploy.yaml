@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - Dev
+      - Prod
 
 jobs:
   test:
@@ -136,7 +136,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: vpc-id
-          path: ./Resources/package-lock.json
+          path: vpc-id.txt
   
       - name: Save EC2 Instance ID as artifact
         run: echo ${{ env.INSTANCE_ID }} > ec2-instance-id.txt
@@ -145,7 +145,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ec2-instance-id
-          path: ./Resources/package-lock.json
+          path: ec2-instance-id.txt
   
       - name: Save S3 Bucket Name as artifact
         run: echo ${{ env.BUCKET_NAME }} > s3-bucket-name.txt
@@ -154,7 +154,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: s3-bucket-name
-          path: ./Resources/package-lock.json
+          path: s3-bucket-name.txt
   
       - name: Cache Node.js dependencies
         uses: actions/cache@v3
@@ -168,7 +168,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          path: ./Resources/package-lock.json
   
       - name: Install dependencies
         run: npm install
