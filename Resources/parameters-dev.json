@@ -1,8 +1,8 @@
-{
-  "VPCName": "dev-demo-vpc",
-  "EC2InstanceName": "dev-demo-ec2-instance-dev",
-  "S3BucketNameCreate": "my-demo-s3-bucket-test-project-11",
-  "S3BucketName": "my-demo-s3-bucket-test-project-18",
-  "Environment": "dev",
-  "S3BucketPrefix": "dev-demo-s3-bucket"
-}
+//{
+//"VPCName": "dev-demo-vpc",
+// "EC2InstanceName": "dev-demo-ec2-instance-dev",
+//  "S3BucketNameCreate": "my-demo-s3-bucket-test-project-11",
+//  "S3BucketName": "my-demo-s3-bucket-test-project-18",
+//  "Environment": "dev",
+//  "S3BucketPrefix": "dev-demo-s3-bucket"
+//}
