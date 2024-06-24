@@ -75,7 +75,6 @@ jobs:
           aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-11/iam-role.yaml
           aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
           aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
-          aws s3 cp ./Resources/parameters.json s3://my-demo-s3-bucket-test-project-11/parameters.json
       
       - name: Check status of Previously Deployed stacks
         id: check_main_stack
