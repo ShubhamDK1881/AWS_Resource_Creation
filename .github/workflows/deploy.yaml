@@ -107,10 +107,10 @@ jobs:
   
       - name: Read and Print Parameters
         run: |
-          if [ "${{ env.ENVIRONMENT }}" == "prod" ]; then
-            PARAM_FILE="./Resources/parameters-prod.json"
-          else
+          if [ "${{ env.ENVIRONMENT }}" == "dev" ]; then
             PARAM_FILE="./Resources/parameters-dev.json"
+          else
+            PARAM_FILE="./Resources/parameters-prod.json"
           fi
           cat $PARAM_FILE
           PARAMS=$(cat $PARAM_FILE | jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | .[]')
