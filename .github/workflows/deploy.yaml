@@ -124,12 +124,10 @@ jobs:
           else
             PARAM_FILE="./Resources/parameters-dev.json"
           fi
-            PARAMS=$(cat $PARAM_FILE | jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | .[]')
-          aws cloudformation deploy \
-            --template-file ./Resources/main.yaml \
-            --stack-name main-stack \
-            --parameter-overrides $PARAMS \
-            --capabilities CAPABILITY_NAMED_IAM
+          cat $PARAM_FILE
+          PARAMS=$(cat $PARAM_FILE | jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join(" ")')
+          echo "Parsed Parameters: $PARAMS"
+          echo "PARAMS=$PARAMS" >> $GITHUB_ENVM
   
       - name: Get CloudFormation Outputs
         id: get_outputs
