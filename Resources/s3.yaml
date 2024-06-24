@@ -4,6 +4,7 @@ Parameters:
   S3BucketName:
     Type: String
     Description: "The name of the S3 bucket."
+    
   AccessControl:
     Type: String
     Description: "The access control settings for the S3 bucket."
