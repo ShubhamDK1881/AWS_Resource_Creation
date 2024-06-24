@@ -101,11 +101,17 @@ jobs:
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
         run: |
+          ENVIRONMENT=${{ github.event.inputs.environment || 'dev' }}
+          if [ "$ENVIRONMENT" == "prod" ]; then
+            PARAM_FILE="./Resources/parameters-prod.json"
+          else
+            PARAM_FILE="./Resources/parameters-dev.json"
+          fi
+          PARAMS=$(cat $PARAM_FILE | jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | .[]')
           aws cloudformation deploy \
             --template-file ./Resources/main.yaml \
             --stack-name main-stack \
-            --parameter-overrides \
-              Environment=prod \
+            --parameter-overrides $PARAMS \
             --capabilities CAPABILITY_NAMED_IAM
   
       - name: Get CloudFormation Outputs
