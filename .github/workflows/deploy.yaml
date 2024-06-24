@@ -99,8 +99,8 @@ jobs:
           aws cloudformation wait stack-delete-complete --stack-name main-stack
           echo "Delete Complete..."
            
-          - name: Set environment
-          run: echo "ENVIRONMENT=${{ github.event.inputs.environment || 'dev' }}" >> $GITHUB_ENV
+      - name: Set environment
+        run: echo "ENVIRONMENT=${{ github.event.inputs.environment || 'dev' }}" >> $GITHUB_ENV
   
       - name: Print environment
         run: echo "Environment:${{ env.ENVIRONMENT }}"
