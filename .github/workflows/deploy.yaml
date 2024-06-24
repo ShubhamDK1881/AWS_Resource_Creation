@@ -75,6 +75,7 @@ jobs:
           aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-11/iam-role.yaml
           aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
           aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
+          aws s3 cp ./Resources/parameters.json s3://my-demo-s3-bucket-test-project-11/parameters.json
       
       - name: Check status of Previously Deployed stacks
         id: check_main_stack
@@ -98,16 +99,32 @@ jobs:
           aws cloudformation wait stack-delete-complete --stack-name main-stack
           echo "Delete Complete..."
            
-      - name: Deploy Main CloudFormation Stack
-        id: deploy_stack
+          - name: Set environment
+          run: echo "ENVIRONMENT=${{ github.event.inputs.environment || 'dev' }}" >> $GITHUB_ENV
+  
+      - name: Print environment
+        run: echo "Environment:${{ env.ENVIRONMENT }}"
+  
+      - name: Read and Print Parameters
         run: |
-          ENVIRONMENT=${{ github.event.inputs.environment || 'dev' }}
-          if [ "$ENVIRONMENT" == "prod" ]; then
+          if [ "${{ env.ENVIRONMENT }}" == "prod" ]; then
             PARAM_FILE="./Resources/parameters-prod.json"
           else
             PARAM_FILE="./Resources/parameters-dev.json"
           fi
+          cat $PARAM_FILE
           PARAMS=$(cat $PARAM_FILE | jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | .[]')
+          echo "Parsed Parameters: $PARAMS"
+  
+      - name: Deploy Main CloudFormation Stack
+        id: deploy_stack
+        run: |
+          if [ "${{ env.ENVIRONMENT }}" == "prod" ]; then
+            PARAM_FILE="./Resources/parameters-prod.json"
+          else
+            PARAM_FILE="./Resources/parameters-dev.json"
+          fi
+            PARAMS=$(cat $PARAM_FILE | jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | .[]')
           aws cloudformation deploy \
             --template-file ./Resources/main.yaml \
             --stack-name main-stack \
