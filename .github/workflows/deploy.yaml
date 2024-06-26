@@ -98,21 +98,35 @@ jobs:
           aws cloudformation wait stack-delete-complete --stack-name main-stack
           echo "Delete Complete..."
            
+      - name: Set environment
+        run: echo "ENVIRONMENT=${{ github.event.inputs.environment || 'dev' }}" >> $GITHUB_ENV
+  
+      - name: Print environment
+        run: echo "Environment:${{ env.ENVIRONMENT }}"
+  
+      - name: Read and Print Parameters
+        run: |
+          if [ "${{ env.ENVIRONMENT }}" == "dev" ]; then
+            PARAM_FILE="./Resources/parameters-dev.json"
+          else
+            PARAM_FILE="./Resources/parameters-prod.json"
+          fi
+          cat $PARAM_FILE
+          PARAMS=$(cat $PARAM_FILE | jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | .[]')
+          echo "Parsed Parameters: $PARAMS"
+  
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
         run: |
-          aws cloudformation deploy \
-            --template-file ./Resources/main.yaml \
-            --stack-name main-stack \
-            --parameter-overrides \
-              Environment=prod \
-              VPCName=dev-demo-vpc \
-              EC2InstanceName=dev-demo-ec2-instance \
-              S3BucketNameCreate=dev-demo-cloudformation-bucket \
-              S3BucketName=my-demo-s3-bucket-test-project-18 \
-              AccessControl=Private \
-              VersioningStatus=Enabled \
-            --capabilities CAPABILITY_NAMED_IAM
+          if [ "${{ env.ENVIRONMENT }}" == "prod" ]; then
+            PARAM_FILE="./Resources/parameters-prod.json"
+          else
+            PARAM_FILE="./Resources/parameters-dev.json"
+          fi
+          cat $PARAM_FILE
+          PARAMS=$(cat $PARAM_FILE | jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join(" ")')
+          echo "Parsed Parameters: $PARAMS"
+          echo "PARAMS=$PARAMS" >> $GITHUB_ENVM
   
       - name: Get CloudFormation Outputs
         id: get_outputs

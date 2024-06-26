@@ -4,7 +4,6 @@ Parameters:
   VPCName:
     Type: String
     Description: The name of the VPC
-    Default: demo-vpc
 
   VPCCIDR:
     Default: 10.0.0.0/16
