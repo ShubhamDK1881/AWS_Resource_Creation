@@ -1,11 +1,16 @@
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 "VPCName": "dev-demo-vpc",
  "EC2InstanceName": "dev-demo-ec2-instance-dev",
 =======
   "VPCName": "dev-demo-vpc",
   "EC2InstanceName": "dev-demo-ec2-instance",
 >>>>>>> parent of 7c15243 (fi)
+=======
+"VPCName": "dev-demo-vpc",
+ "EC2InstanceName": "dev-demo-ec2-instance-dev",
+>>>>>>> bc96e6b104bcb2d12836debff5375c00ec4019af
   "S3BucketNameCreate": "my-demo-s3-bucket-test-project-11",
   "S3BucketName": "my-demo-s3-bucket-test-project-18",
   "Environment": "dev",
