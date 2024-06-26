@@ -4,6 +4,7 @@ Resources:
   EC2ExecutionRole:
     Type: "AWS::IAM::Role"
     Properties:
+      RoleName: EC2-Role
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:

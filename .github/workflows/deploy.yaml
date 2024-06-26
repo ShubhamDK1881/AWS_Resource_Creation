@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - Prod
+      - Dev
 
 jobs:
   test:
@@ -15,12 +15,20 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
         run: npm install
@@ -29,6 +37,7 @@ jobs:
         run: npm test
         
   deploy:
+    needs: test
     runs-on: ubuntu-latest
 
     env:
@@ -67,7 +76,7 @@ jobs:
           aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-11/parameters-dev.json
           aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-11/parameters-prod.json
       
-      - name: Check if main stack is in ROLLBACK_COMPLETE state
+      - name: Check status of Previously Deployed stacks
         id: check_main_stack
         run: |
           STACK_STATUS=$(aws cloudformation describe-stacks --stack-name main-stack --query "Stacks[0].StackStatus" --output text || echo "STACK_NOT_FOUND")
@@ -96,11 +105,11 @@ jobs:
             --template-file ./Resources/main.yaml \
             --stack-name main-stack \
             --parameter-overrides \
+              Environment=prod \
               VPCName=dev-demo-vpc \
               EC2InstanceName=dev-demo-ec2-instance \
               S3BucketNameCreate=dev-demo-cloudformation-bucket \
               S3BucketName=my-demo-s3-bucket-test-project-18 \
-              Environment=dev \
               AccessControl=Private \
               VersioningStatus=Enabled \
             --capabilities CAPABILITY_NAMED_IAM
@@ -162,7 +171,6 @@ jobs:
   
       - name: Install dependencies
         run: npm install
-        #run: npm ci
   
       - name: Run tests
         run: npm test
