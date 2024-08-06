@@ -51,15 +51,6 @@ Resources:
       TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-18/s3.yaml'
       Parameters:
         S3BucketName: !Ref S3BucketName
-        AccessControl: !Ref AccessControl
-        VersioningStatus: !Ref VersioningStatus
-
-  NestedEC2Stack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-18/ec2.yaml'
-      Parameters:
-        EC2InstanceName: !Ref EC2InstanceName
 
 Outputs:
   VPCId:
@@ -74,8 +65,8 @@ Outputs:
     Export:
       Name: !Sub "${AWS::StackName}-S3BucketName"
 
-  InstanceId:
+  CloudFormationRole:
     Description: "The ID of the EC2 instance"
-    Value: !GetAtt NestedEC2Stack.Outputs.InstanceId
+    Value: !GetAtt NestedIAMRoleStack.Outputs.CloudFormationRole
     Export:
-      Name: !Sub "${AWS::StackName}-InstanceId"
+      Name: !Sub "${AWS::StackName}-CloudFormationRole"

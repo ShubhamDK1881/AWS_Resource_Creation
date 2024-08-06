@@ -5,7 +5,6 @@
   "VPCName": "dev-demo-vpc",
   "EC2InstanceName": "dev-demo-ec2-instance",
   "VPCName": "dev-demo-vpc",
-  "EC2InstanceName": "dev-demo-ec2-instance-dev",
   "S3BucketName": "my-demo-s3-bucket-test-project-11",
   "Environment": "dev",
   "S3BucketPrefix": "dev-demo-s3-bucket"

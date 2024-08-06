@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
-  EC2ExecutionRole:
+  CloudFormationRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: EC2-Role
+      RoleName: CloudFormationRole
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -12,10 +12,11 @@ Resources:
             Principal:
               Service:
                 - "ec2.amazonaws.com"
+                - "cloudformation.amazonaws.com"
             Action:
               - "sts:AssumeRole"
       Policies:
-        - PolicyName: "EC2ExecutionPolicy"
+        - PolicyName: "CloudFormationPolicy"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -25,11 +26,26 @@ Resources:
                   - "logs:CreateLogStream"
                   - "logs:PutLogEvents"
                   - "s3:GetObject"
+                  - "s3:ListBucket"
+                  - "ec2:DescribeInstances"
+                  - "ec2:DescribeInstanceStatus"
+                  - "ec2:DescribeImages"
+                  - "ec2:DescribeKeyPairs"
+                  - "ec2:DescribeSecurityGroups"
+                  - "ec2:DescribeSubnets"
+                  - "ec2:DescribeVpcs"
+                  - "ec2:RunInstances"
+                  - "ec2:TerminateInstances"
+                  - "iam:PassRole"
+                  - "cloudformation:CreateStack"
+                  - "cloudformation:UpdateStack"
+                  - "cloudformation:DescribeStacks"
+                  - "cloudformation:DeleteStack"
                 Resource: "*"
 
 Outputs:
-  EC2ExecutionRoleArn:
-    Description: "ARN of the EC2 execution role"
-    Value: !GetAtt EC2ExecutionRole.Arn
+  CloudFormationRole:
+    Description: "ARN of the CloudFormation execution role"
+    Value: !GetAtt CloudFormationRole.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-EC2ExecutionRoleArn"
+      Name: !Sub "${AWS::StackName}-CloudFormationRoleArn"
