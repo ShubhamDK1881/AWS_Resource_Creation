@@ -36,19 +36,19 @@ Resources:
   NestedIAMRoleStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-18/iam-role.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/${{ secrets.S3_BUCKET }}/iam-role.yaml'
 
   NestedVPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-18/vpc.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/${{ secrets.S3_BUCKET }}/vpc.yaml'
       Parameters:
         VPCName: !Ref VPCName
 
   NestedS3Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-18/s3.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/${{ secrets.S3_BUCKET }}/s3.yaml'
       Parameters:
         S3BucketName: !Ref S3BucketName
 
