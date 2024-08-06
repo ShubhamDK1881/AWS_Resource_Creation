@@ -80,14 +80,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Upload nested stack templates to S3
-        run: |
-          aws s3 cp ./Resources/vpc.yaml s3://${S3_BUCKET}/vpc.yaml
-          aws s3 cp ./Resources/s3.yaml s3://${S3_BUCKET}/s3.yaml
-          aws s3 cp ./Resources/iam-role.yaml s3://${S3_BUCKET}/iam-role.yaml
-          aws s3 cp ./Resources/parameters-dev.json s3://${S3_BUCKET}/parameters-dev.json
-          aws s3 cp ./Resources/parameters-prod.json s3://${S3_BUCKET}/parameters-prod.json  
-
       - name: Check status of Previously Deployed stacks
         id: check_main_stack
         run: |
