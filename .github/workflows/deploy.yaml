@@ -60,7 +60,7 @@ jobs:
           aws s3 cp ./Resources/s3.yaml s3://my-demo-s3-bucket-test-project-18/s3.yaml
           aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-18/iam-role.yaml
           aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-18/parameters-dev.json
-          aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-18/parameters-prod.json
+          aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-18/parameters-prod.json  
       
       - name: Check status of Previously Deployed stacks
         id: check_main_stack
@@ -139,7 +139,10 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-  
+
+      - name: Copy package-lock.json to repo
+        run: cp package-lock.json ./package-lock.json
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
@@ -151,5 +154,4 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Copy package-lock.json to repo
-      run: cp package-lock.json ./package-lock.json
+     
