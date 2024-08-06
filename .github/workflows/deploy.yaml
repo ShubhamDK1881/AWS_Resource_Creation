@@ -29,7 +29,6 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-
       - name: Install dependencies
         run: npm install
 
@@ -56,11 +55,11 @@ jobs:
 
       - name: Upload nested stack templates to S3
         run: |
-          aws s3 cp ./Resources/vpc.yaml s3://${{ secrets.S3_BUCKET }}/vpc.yaml
-          aws s3 cp ./Resources/s3.yaml s3://${{ secrets.S3_BUCKET }}/s3.yaml
-          aws s3 cp ./Resources/iam-role.yaml s3://${{ secrets.S3_BUCKET }}/iam-role.yaml
-          aws s3 cp ./Resources/parameters-dev.json s3://${{ secrets.S3_BUCKET }}/parameters-dev.json
-          aws s3 cp ./Resources/parameters-prod.json s3://${{ secrets.S3_BUCKET }}/parameters-prod.json  
+          aws s3 cp ./Resources/vpc.yaml s3://my-demo-s3-bucket-test-project-18/vpc.yaml
+          aws s3 cp ./Resources/s3.yaml s3://my-demo-s3-bucket-test-project-18/s3.yaml
+          aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-18/iam-role.yaml
+          aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-18/parameters-dev.json
+          aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-18/parameters-prod.json  
       
       - name: Check status of Previously Deployed stacks
         id: check_main_stack
@@ -68,7 +67,6 @@ jobs:
           STACK_STATUS=$(aws cloudformation describe-stacks --stack-name main-stack --query "Stacks[0].StackStatus" --output text || echo "STACK_NOT_FOUND")
           echo "main Stack Status: $STACK_STATUS"
           echo "::set-output name=stack_status::$STACK_STATUS"
-
       - name: Delete main stack if main stack is in DELETE_IN_PROGRESS state
         if: steps.check_main_stack.outputs.stack_status == 'DELETE_IN_PROGRESS'
         run: |
@@ -89,7 +87,6 @@ jobs:
         run: |
             PARAMS=$(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join(" ")' Resources/parameters-dev.json)
             echo "::set-output name=params::$PARAMS"
-
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
         run: |
@@ -139,7 +136,6 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
@@ -152,3 +148,4 @@ jobs:
         run: npm test
 
      
+D · ShubhamDK1881/AWS_Resource_Creation@e545623
