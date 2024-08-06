@@ -84,14 +84,20 @@ jobs:
           aws cloudformation delete-stack --stack-name main-stack
           aws cloudformation wait stack-delete-complete --stack-name main-stack
           echo "Delete Complete..."
-           
+      
+      - name: Prepare parameter overrides
+        id: prepare-params
+        run: |
+            PARAMS=$(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join(" ")' parameters-dev.json)
+            echo "::set-output name=params::$PARAMS"
+
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
         run: |
           aws cloudformation deploy \
             --template-file ./Resources/main.yaml \
             --stack-name main-stack \
-            --parameter-overrides $(cat parameters-dev.json | jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | .[]')
+            --parameter-overrides ${{ steps.prepare-params.outputs.params }}
             --capabilities CAPABILITY_NAMED_IAM
   
       - name: Get CloudFormation Outputs
