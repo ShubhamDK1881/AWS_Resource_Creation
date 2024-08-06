@@ -140,9 +140,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Copy package-lock.json to repo
-        run: cp package-lock.json ./package-lock.json
-
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
