@@ -26,7 +26,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/Resources/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
@@ -123,15 +123,6 @@ jobs:
           name: vpc-id
           path: vpc-id.txt
   
-      - name: Save EC2 Instance ID as artifact
-        run: echo ${{ env.INSTANCE_ID }} > ec2-instance-id.txt
-  
-      - name: Upload EC2 Instance ID artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: ec2-instance-id
-          path: ec2-instance-id.txt
-  
       - name: Save S3 Bucket Name as artifact
         run: echo ${{ env.BUCKET_NAME }} > s3-bucket-name.txt
   
@@ -145,7 +136,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/Resources/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
   
@@ -159,3 +150,6 @@ jobs:
   
       - name: Run tests
         run: npm test
+
+      - name: Copy package-lock.json to repo
+      run: cp package-lock.json ./package-lock.json
