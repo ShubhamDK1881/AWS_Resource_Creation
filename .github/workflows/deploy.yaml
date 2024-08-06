@@ -7,104 +7,80 @@ on:
       - Dev
 
 jobs:
-  test:
+  cloudformation-deploy:
+    name: Deploy CloudFormation
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.x]
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@master
 
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run unit tests
-        run: npm test
-        
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-
-    env:
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Set environment variables
+        id: set-env
+        run: |
+          BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)
+          echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
+          if [[ $BRANCH == 'master' || $BRANCH == 'main' ]]; then
+            echo "DEPLOYMENT_ENV=prod" >> $GITHUB_ENV
+            echo "DEPLOYMENT_ROLE_ARN=${{ secrets.PROD_DEPLOYMENT_ROLE }}" >> $GITHUB_ENV
+            echo "S3_BUCKET=${{ secrets.PROD_S3_BUCKET }}" >> $GITHUB_ENV
+            echo "STACK_NAME=main-stack-prod" >> $GITHUB_ENV
+          elif [[ $BRANCH == 'qa' ]]; then
+            echo "DEPLOYMENT_ENV=qa" >> $GITHUB_ENV
+            echo "DEPLOYMENT_ROLE_ARN=${{ secrets.QA_DEPLOYMENT_ROLE }}" >> $GITHUB_ENV
+            echo "S3_BUCKET=${{ secrets.QA_S3_BUCKET }}" >> $GITHUB_ENV
+            echo "STACK_NAME=main-stack-qa" >> $GITHUB_ENV
+          else
+            echo "DEPLOYMENT_ENV=dev" >> $GITHUB_ENV
+            echo "DEPLOYMENT_ROLE_ARN=${{ secrets.DEV_DEPLOYMENT_ROLE }}" >> $GITHUB_ENV
+            echo "S3_BUCKET=${{ secrets.DEV_S3_BUCKET }}" >> $GITHUB_ENV
+            echo "STACK_NAME=main-stack-dev" >> $GITHUB_ENV
+          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ env.DEPLOYMENT_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Upload nested stack templates to S3
         run: |
-          aws s3 cp ./Resources/vpc.yaml s3://my-demo-s3-bucket-test-project-18/vpc.yaml
-          aws s3 cp ./Resources/s3.yaml s3://my-demo-s3-bucket-test-project-18/s3.yaml
-          aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-18/iam-role.yaml
-          aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-18/parameters-dev.json
-          aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-18/parameters-prod.json  
-      
-      - name: Check status of Previously Deployed stacks
-        id: check_main_stack
-        run: |
-          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name main-stack --query "Stacks[0].StackStatus" --output text || echo "STACK_NOT_FOUND")
-          echo "main Stack Status: $STACK_STATUS"
-          echo "::set-output name=stack_status::$STACK_STATUS"
+          aws s3 cp ./Resources/vpc.yaml s3://${{ env.S3_BUCKET }}/vpc.yaml
+          aws s3 cp ./Resources/s3.yaml s3://${{ env.S3_BUCKET }}/s3.yaml
+          aws s3 cp ./Resources/iam-role.yaml s3://${{ env.S3_BUCKET }}/iam-role.yaml
+          aws s3 cp ./Resources/parameters-${{ env.DEPLOYMENT_ENV }}.json s3://${{ env.S3_BUCKET }}/parameters-${{ env.DEPLOYMENT_ENV }}.json
 
-      - name: Delete main stack if main stack is in DELETE_IN_PROGRESS state
-        if: steps.check_main_stack.outputs.stack_status == 'DELETE_IN_PROGRESS'
+      - name: Print environment variables
         run: |
-          echo "Deleting main stack..."
-          aws cloudformation wait stack-delete-complete --stack-name main-stack
-          echo "Delete Complete..."
-        
-      - name: Delete main stack if main stack is in ROLLBACK_COMPLETE state
-        if: steps.check_main_stack.outputs.stack_status == 'ROLLBACK_COMPLETE' || 'CREATE_COMPLETE'
-        run: |
-          echo "Deleting main stack..."
-          aws cloudformation delete-stack --stack-name main-stack
-          aws cloudformation wait stack-delete-complete --stack-name main-stack
-          echo "Delete Complete..."
-      
-      - name: Prepare parameter overrides
-        id: prepare-params
-        run: |
-            PARAMS=$(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join(" ")' Resources/parameters-dev.json)
-            echo "::set-output name=params::$PARAMS"
+          echo "Role ARN: ${{ env.DEPLOYMENT_ROLE_ARN }}"
+          echo "Deployment Environment: ${{ env.DEPLOYMENT_ENV }}"
+          echo "S3 Bucket: ${{ env.S3_BUCKET }}"
+          echo "Stack Name: ${{ env.STACK_NAME }}"
 
-      - name: Deploy Main CloudFormation Stack
-        id: deploy_stack
-        run: |
-          aws cloudformation deploy \
-            --template-file ./Resources/main.yaml \
-            --stack-name main-stack \
-            --capabilities CAPABILITY_NAMED_IAM \
-            --parameter-overrides ${{ steps.prepare-params.outputs.params }}
-  
+      - name: Run AWS CloudFormation Linter
+        uses: ScottBrenner/cfn-lint-action@v2.3.1
+
+      - name: Deploy CloudFormation Stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v2
+        with:
+          name: ${{ env.STACK_NAME }}
+          template: ./Resources/main.yaml
+          parameter-overrides: file://${{ github.workspace }}/Resources/parameters-${{ env.DEPLOYMENT_ENV }}.json
+          capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM
+          no-fail-on-empty-changeset: "1"
+
       - name: Get CloudFormation Outputs
         id: get_outputs
         run: |
-          outputs=$(aws cloudformation describe-stacks --stack-name main-stack --query "Stacks[0].Outputs" --output json)
+          outputs=$(aws cloudformation describe-stacks --stack-name ${{ env.STACK_NAME }} --query "Stacks[0].Outputs" --output json)
           echo "outputs=$(echo $outputs | jq -c .)" >> $GITHUB_ENV
-  
+
       - name: Parse and Set Outputs
         run: |
           VPC_ID=$(echo $outputs | jq -r '.[] | select(.OutputKey=="VPCId") | .OutputValue')
@@ -113,42 +89,21 @@ jobs:
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
           echo "BUCKET_NAME=$BUCKET_NAME" >> $GITHUB_ENV
-  
+
       - name: Save VPC ID as artifact
         run: echo ${{ env.VPC_ID }} > vpc-id.txt
-  
+
       - name: Upload VPC ID artifact
         uses: actions/upload-artifact@v3
         with:
           name: vpc-id
           path: vpc-id.txt
-  
+
       - name: Save S3 Bucket Name as artifact
         run: echo ${{ env.BUCKET_NAME }} > s3-bucket-name.txt
-  
+
       - name: Upload S3 Bucket Name artifact
         uses: actions/upload-artifact@v3
         with:
           name: s3-bucket-name
           path: s3-bucket-name.txt
-  
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-  
-      - name: Install dependencies
-        run: npm install
-  
-      - name: Run tests
-        run: npm test
-
-     
