@@ -6,10 +6,6 @@ Parameters:
     Type: String
     Description: The name of the VPC
 
-  EC2InstanceName:
-    Type: String
-    Description: The name of the EC2 instance
-
   S3BucketName:
     Type: String
     Description: The name of the S3 bucket to be created

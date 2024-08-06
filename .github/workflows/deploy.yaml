@@ -56,11 +56,11 @@ jobs:
 
       - name: Upload nested stack templates to S3
         run: |
-          aws s3 cp ./Resources/vpc.yaml s3://my-demo-s3-bucket-test-project-18/vpc.yaml
-          aws s3 cp ./Resources/s3.yaml s3://my-demo-s3-bucket-test-project-18/s3.yaml
-          aws s3 cp ./Resources/iam-role.yaml s3://my-demo-s3-bucket-test-project-18/iam-role.yaml
-          aws s3 cp ./Resources/parameters-dev.json s3://my-demo-s3-bucket-test-project-18/parameters-dev.json
-          aws s3 cp ./Resources/parameters-prod.json s3://my-demo-s3-bucket-test-project-18/parameters-prod.json  
+          aws s3 cp ./Resources/vpc.yaml s3://${{ secrets.S3_BUCKET }}/vpc.yaml
+          aws s3 cp ./Resources/s3.yaml s3://${{ secrets.S3_BUCKET }}/s3.yaml
+          aws s3 cp ./Resources/iam-role.yaml s3://${{ secrets.S3_BUCKET }}/iam-role.yaml
+          aws s3 cp ./Resources/parameters-dev.json s3://${{ secrets.S3_BUCKET }}/parameters-dev.json
+          aws s3 cp ./Resources/parameters-prod.json s3://${{ secrets.S3_BUCKET }}/parameters-prod.json  
       
       - name: Check status of Previously Deployed stacks
         id: check_main_stack
