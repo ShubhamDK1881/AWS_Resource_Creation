@@ -88,7 +88,7 @@ jobs:
       - name: Prepare parameter overrides
         id: prepare-params
         run: |
-            PARAMS=$(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join(" ")' s3://my-demo-s3-bucket-test-project-11/parameters-dev.json)
+            PARAMS=$(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join(" ")' Resources/parameters-dev.json)
             echo "::set-output name=params::$PARAMS"
 
       - name: Deploy Main CloudFormation Stack
