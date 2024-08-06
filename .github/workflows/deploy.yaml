@@ -54,20 +54,24 @@ jobs:
           echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
           if [[ $BRANCH == 'master' || $BRANCH == 'main' ]]; then
             echo "DEPLOYMENT_ENV=prod" >> $GITHUB_ENV
-            echo "DEPLOYMENT_ROLE_ARN=${{ secrets.PROD_DEPLOYMENT_ROLE }}" >> $GITHUB_ENV
             echo "S3_BUCKET=${{ secrets.PROD_S3_BUCKET }}" >> $GITHUB_ENV
             echo "STACK_NAME=main-stack-prod" >> $GITHUB_ENV
           elif [[ $BRANCH == 'qa' ]]; then
             echo "DEPLOYMENT_ENV=qa" >> $GITHUB_ENV
-            echo "DEPLOYMENT_ROLE_ARN=${{ secrets.QA_DEPLOYMENT_ROLE }}" >> $GITHUB_ENV
             echo "S3_BUCKET=${{ secrets.QA_S3_BUCKET }}" >> $GITHUB_ENV
             echo "STACK_NAME=main-stack-qa" >> $GITHUB_ENV
           else
             echo "DEPLOYMENT_ENV=dev" >> $GITHUB_ENV
-            echo "DEPLOYMENT_ROLE_ARN=${{ secrets.DEV_DEPLOYMENT_ROLE }}" >> $GITHUB_ENV
             echo "S3_BUCKET=${{ secrets.DEV_S3_BUCKET }}" >> $GITHUB_ENV
             echo "STACK_NAME=main-stack-dev" >> $GITHUB_ENV
           fi
+
+      - name: Print environment variables for debugging
+        run: |
+          echo "BRANCH=${BRANCH}"
+          echo "DEPLOYMENT_ENV=${DEPLOYMENT_ENV}"
+          echo "S3_BUCKET=${S3_BUCKET}"
+          echo "STACK_NAME=${STACK_NAME}"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -78,11 +82,11 @@ jobs:
 
       - name: Upload nested stack templates to S3
         run: |
-          aws s3 cp ./Resources/vpc.yaml s3://${{ env.S3_BUCKET }}/vpc.yaml
-          aws s3 cp ./Resources/s3.yaml s3://${{ env.S3_BUCKET }}/s3.yaml
-          aws s3 cp ./Resources/iam-role.yaml s3://${{ env.S3_BUCKET }}/iam-role.yaml
-          aws s3 cp ./Resources/parameters-dev.json s3://${{ env.S3_BUCKET }}/parameters-dev.json
-          aws s3 cp ./Resources/parameters-prod.json s3://${{ env.S3_BUCKET }}/parameters-prod.json  
+          aws s3 cp ./Resources/vpc.yaml s3://${S3_BUCKET}/vpc.yaml
+          aws s3 cp ./Resources/s3.yaml s3://${S3_BUCKET}/s3.yaml
+          aws s3 cp ./Resources/iam-role.yaml s3://${S3_BUCKET}/iam-role.yaml
+          aws s3 cp ./Resources/parameters-dev.json s3://${S3_BUCKET}/parameters-dev.json
+          aws s3 cp ./Resources/parameters-prod.json s3://${S3_BUCKET}/parameters-prod.json  
 
       - name: Check status of Previously Deployed stacks
         id: check_main_stack
