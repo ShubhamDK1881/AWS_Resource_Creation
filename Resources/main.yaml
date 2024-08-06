@@ -32,22 +32,21 @@ Resources:
   NestedIAMRoleStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-18/iam-role.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/${S3BucketName}/iam-role.yaml'
 
   NestedVPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-18/vpc.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/${S3BucketName}/vpc.yaml'
       Parameters:
         VPCName: !Ref VPCName
 
   NestedS3Stack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://s3.amazonaws.com/my-demo-s3-bucket-test-project-18/s3.yaml'
+      TemplateURL: !Sub 'https://s3.amazonaws.com/${S3BucketName}/s3.yaml'
       Parameters:
         S3BucketName: !Ref S3BucketName
-
 
 Outputs:
   VPCId:
@@ -61,9 +60,3 @@ Outputs:
     Value: !GetAtt NestedS3Stack.Outputs.S3BucketName
     Export:
       Name: !Sub "${AWS::StackName}-S3BucketName"
-
-  CloudFormationRole:
-    Description: "The ID of the EC2 instance"
-    Value: !GetAtt NestedIAMRoleStack.Outputs.CloudFormationRole
-    Export:
-      Name: !Sub "${AWS::StackName}-CloudFormationRole"

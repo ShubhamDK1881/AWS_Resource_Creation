@@ -1,8 +1,7 @@
 {
-  "VPCName": "prod-demo-vpc",
-  "EC2InstanceName": "prod-demo-ec2-instance",
-  "S3BucketNameCreate": "my-demo-s3-bucket-test-project-11",
-  "S3BucketName": "my-demo-s3-bucket-test-project-18",
+  "VPCName": "ProdVPC",
+  "S3BucketName": "dev-s3-bucket-demo-project-81",
   "Environment": "prod",
-  "S3BucketPrefix": "prod-demo-s3-bucket"
+  "AccessControl": "Private",
+  "VersioningStatus": "Enabled"
 }

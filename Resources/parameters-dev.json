@@ -1,8 +1,7 @@
 {
-
-  "VPCName": "dev-demo-vpc",
-  "S3BucketName": "my-demo-s3-bucket-test-project-81",
+  "VPCName": "DevVPC",
+  "S3BucketName": "dev-s3-bucket-demo-project-18",
   "Environment": "dev",
-  "S3BucketPrefix": "dev-demo-s3-bucket"
-
+  "AccessControl": "Private",
+  "VersioningStatus": "Enabled"
 }
