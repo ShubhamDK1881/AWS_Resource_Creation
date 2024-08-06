@@ -97,8 +97,8 @@ jobs:
           aws cloudformation deploy \
             --template-file ./Resources/main.yaml \
             --stack-name main-stack \
+            --capabilities CAPABILITY_NAMED_IAM \
             --parameter-overrides ${{ steps.prepare-params.outputs.params }}
-            --capabilities CAPABILITY_NAMED_IAM
   
       - name: Get CloudFormation Outputs
         id: get_outputs
