@@ -13,7 +13,7 @@ Parameters:
   Environment:
     Type: String
     Description: The environment name
-    Default: dev
+    Default: prod
     AllowedValues: [dev, prod]
 
   AccessControl:

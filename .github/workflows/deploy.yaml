@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - Dev
-      - master
+      - prod
       - main
       - qa
 
