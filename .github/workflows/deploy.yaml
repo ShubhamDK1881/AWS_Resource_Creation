@@ -102,12 +102,6 @@ jobs:
           aws cloudformation wait stack-delete-complete --stack-name ${{ env.STACK_NAME }}
           echo "Delete Complete..."
 
-      - name: Prepare parameter overrides
-        id: prepare-params
-        run: |
-          PARAMS=$(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join(" ")' Resources/parameters-${{ env.DEPLOYMENT_ENV }}.json)
-          echo "::set-output name=params::$PARAMS"
-
       - name: Deploy Main CloudFormation Stack
         id: deploy_stack
         run: |
