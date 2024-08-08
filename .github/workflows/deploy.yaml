@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 19.x, 20.x]
+        node-version: [20.x]
 
     steps:
       - name: Checkout code
@@ -109,7 +109,6 @@ jobs:
             --template-file ./Resources/main.yaml \
             --stack-name ${{ env.STACK_NAME }} \
             --capabilities CAPABILITY_NAMED_IAM \
-            --parameter-overrides ${{ steps.prepare-params.outputs.params }}
 
       - name: Fetch CloudFormation Stack Events on Failure
         if: failure()
